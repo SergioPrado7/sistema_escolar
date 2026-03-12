@@ -3,7 +3,7 @@ session_start();
 
 $host = "localhost"; 
 $user = "root";
-$pass = "Lu15esp1";
+$pass = "Servando_75.";
 $db   = "sistema_escolar";
 
 $conn = new mysqli($host, $user, $pass, $db);
