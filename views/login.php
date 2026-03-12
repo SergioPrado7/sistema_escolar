@@ -1,11 +1,6 @@
 <?php
-// 1. Reporte de errores para quitar el "Error 500" y ver el problema real
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 session_start();
 
-// 2. Configuración de conexión (Asegúrate que la clave sea Servando_75)
 $host = "localhost"; 
 $user = "root";
 $pass = "Lu15esp1";
@@ -13,7 +8,6 @@ $db   = "sistema_escolar";
 
 $conn = new mysqli($host, $user, $pass, $db);
 
-// Verificar si la conexión falló
 if ($conn->connect_error) {
     die("Error de conexión a la base de datos: " . $conn->connect_error);
 }
@@ -24,24 +18,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $matricula = mysqli_real_escape_string($conn, $_POST['matricula']);
     $password_ingresada = $_POST['password'];
 
-    // 3. Consulta a tu tabla usuarios
     $sql = "SELECT * FROM usuarios WHERE matricula = '$matricula' LIMIT 1";
     $res = $conn->query($sql);
 
     if ($res && $res->num_rows > 0) {
         $usuario = $res->fetch_assoc();
 
-        // 4. Verificación de contraseña (ajustada a texto plano por ahora)
         if ($password_ingresada == $usuario['password']) {
             if ($usuario['estatus'] == 'Inactivo') {
                 $error = "Tu cuenta está desactivada.";
             } else {
-                // Guardar datos en sesión
                 $_SESSION['id_usuario'] = $usuario['id_usuario'];
                 $_SESSION['rol'] = $usuario['rol'];
                 $_SESSION['matricula'] = $usuario['matricula'];
-
-                // REDIRECCIÓN: Como están en la misma carpeta, solo ponemos el nombre del archivo
+                
                 header("Location: dashboard.php");
                 exit();
             }
