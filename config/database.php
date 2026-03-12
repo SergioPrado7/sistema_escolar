@@ -3,7 +3,7 @@ class Conexion {
     private $host = "localhost";
     private $db_name = "sistema_escolar"; // El nombre de la BD que creaste en la terminal
     private $username = "root";
-    private $password = "Servando_75."; // Escribe la contraseña de tu MariaDB
+    private $password = "Lu15esp1"; // Escribe la contraseña de tu MariaDB
     public $conn;
 
     public function getConnection() {

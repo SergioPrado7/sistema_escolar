@@ -8,7 +8,7 @@ session_start();
 // 2. Configuración de conexión (Asegúrate que la clave sea Servando_75)
 $host = "localhost"; 
 $user = "root";
-$pass = "Servando_75.";
+$pass = "Lu15esp1";
 $db   = "sistema_escolar";
 
 $conn = new mysqli($host, $user, $pass, $db);
