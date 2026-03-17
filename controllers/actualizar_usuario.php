@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         $db->beginTransaction();
 
-        // 1. Actualizar el nombre en la tabla 'personas'
+        // Actualizar el nombre en la tabla 'personas'
         $query_persona = "UPDATE personas SET nombre = :nombre, apellido_paterno = :apellido WHERE id_usuario = :id";
         $stmt_persona = $db->prepare($query_persona);
         $stmt_persona->execute([
@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ':id' => $id_usuario
         ]);
 
-        // 2. Actualizar el rol y estatus en la tabla 'usuarios'
+        //  Actualizar el rol y estatus en la tabla 'usuarios'
         $query_usuario = "UPDATE usuarios SET rol = :rol, estatus = :estatus WHERE id_usuario = :id";
         $stmt_usuario = $db->prepare($query_usuario);
         $stmt_usuario->execute([
