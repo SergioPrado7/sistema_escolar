@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($res && $res->num_rows > 0) {
         $usuario = $res->fetch_assoc();
 
-        if ($password_ingresada == $usuario['password']) {
+        if (password_verify($password_ingresada, $usuario['password']) || $password_ingresada == $usuario['password']) {
             if ($usuario['estatus'] == 'Inactivo') {
                 $error = "Tu cuenta está desactivada.";
             } else {
