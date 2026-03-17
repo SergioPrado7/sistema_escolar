@@ -52,9 +52,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
 
     } catch (PDOException $e) {
-        // Si hay un error (ejemplo: matrícula repetida), cancelamos todo y mostramos el error
         $db->rollBack();
-        echo "Error al guardar el usuario: " . $e->getMessage();
+        // El código 23000 en SQL significa "Dato Duplicado" (Violación de restricción UNIQUE)
+        if ($e->getCode() == 23000) {
+            // Lo regresamos a la tabla pero le mandamos una señal secreta en la URL (?error=duplicado)
+            header("Location: ../views/gestion_usuarios.php?error=duplicado");
+        } else {
+            // Si es cualquier otro error raro
+            header("Location: ../views/gestion_usuarios.php?error=general");
+        }
+        exit();
     }
 } else {
     // Si alguien intenta entrar a este archivo directo desde el navegador, lo regresamos

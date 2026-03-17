@@ -40,24 +40,31 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <img src="../assets/logos/logo_tec.png" alt="Tec San Pedro" class="img-fluid" style="max-width: 150px;">
             </div>
             <div class="d-grid gap-2">
-                <a href="dashboard.php" class="btn text-white" style="background-color: #7B1E27;">Panel Principal</a>
+                <a href="dashboard.php" class="btn text-white" style="background-color: #800020;">Panel Principal</a>
                 <a href="gestion_usuarios.php" class="btn text-white fw-bold" style="background-color: #5a151c;">Gestión Usuarios</a>
-                <a href="#" class="btn text-white" style="background-color: #7B1E27;">Carga Académica</a>
+                <a href="#" class="btn text-white" style="background-color: #800020;">Carga Académica</a>
                 </div>
         </div>
 
         <div class="col-md-10 p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 style="color: #7B1E27; font-weight: bold;">Gestión de Usuarios</h1>
-                <button class="btn text-white" style="background-color: #7B1E27;" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
+                <h1 style="color: #800020; font-weight: bold;">Gestión de Usuarios</h1>
+                <button class="btn text-white" style="background-color: #800020;" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
                     <i class="bi bi-person-plus-fill"></i> Nuevo Usuario
                 </button>
             </div>
 
+            <?php if(isset($_GET['error']) && $_GET['error'] == 'duplicado'): ?>
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                    <strong>¡Acción denegada!</strong> Ya existe un usuario registrado con esa misma matrícula.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+
             <div class="card shadow-sm border-0">
                 <div class="card-body">
                     <table class="table table-hover align-middle">
-                        <thead style="color: #7B1E27;">
+                        <thead style="color: #800020;">
                             <tr>
                                 <th>Matrícula</th>
                                 <th>Nombre Completo</th>
@@ -99,7 +106,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="modal fade" id="modalNuevoUsuario" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header" style="background-color: #7B1E27; color: white;">
+      <div class="modal-header" style="background-color: #800020; color: white;">
         <h5 class="modal-title" id="modalLabel">Registrar Nuevo Usuario</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
@@ -134,7 +141,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn text-white" style="background-color: #7B1E27;">Guardar Usuario</button>
+            <button type="submit" class="btn text-white" style="background-color: #800020;">Guardar Usuario</button>
           </div>
       </form>
     </div>
