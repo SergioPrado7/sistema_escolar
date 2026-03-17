@@ -1,10 +1,10 @@
 <?php
 session_start();
 
-$host = "localhost"; 
-$user = "root";
-$pass = "Servando_75.";
-$db   = "sistema_escolar";
+$host = "nue.domcloud.co"; 
+$user = "sitiosergio";
+$pass = "j_6)55P_zdHiP8jY2W";
+$db   = "sitiosergio_sistema_escolar";
 
 $conn = new mysqli($host, $user, $pass, $db);
 
