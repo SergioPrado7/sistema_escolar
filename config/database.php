@@ -19,6 +19,7 @@ class Conexion {
         }
 
         return $this->conn;
+        <s></s>
     }
 }
 ?>
