@@ -13,11 +13,12 @@
             <img style="display: block; margin: 0 auto; width:185px; height:95px;" src="../assets/logos/logoPrincipalLogin.png" alt="Logo Tec">
             </div>
         <div class="menu_links">
-            <a href="" class="item">Panel Principal</a>
-            <a href="" class="item">Mis Calificaciones</a>
-            <a href="" class="item">Finanzas y Pagos</a>
-            <a href="" class="item">Carga Academica</a>
-            <a href="" class="item">Servicio Social</a>
+        <a href="dashboard.php" class="item">Panel Principal</a>
+        <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
+        <a href="#" class="item">Mis Calificaciones</a>
+        <a href="#" class="item">Finanzas y Pagos</a>
+        <a href="#" class="item">Carga Academica</a>
+        <a href="#" class="item">Servicio Social</a>
         </div>
     </nav>
 
