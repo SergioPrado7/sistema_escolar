@@ -1,9 +1,9 @@
 <?php
 class Conexion {
-    private $host = "localhost";
-    private $db_name = "sistema_escolar"; 
-    private $username = "root";
-    private $password = "Servando_75."; 
+    private $host = "nue.domcloud.co";
+    private $db_name = "sitiosergio_sistema_escolar"; 
+    private $username = "sitiosergio";
+    private $password = "j_6)55P_zdHiP8jY2W"; 
     public $conn;
 
     public function getConnection() {

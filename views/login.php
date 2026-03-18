@@ -1,10 +1,10 @@
 <?php
 session_start();
 
-$host = "localhost"; 
-$user = "root";
-$pass = "Servando_75.";
-$db   = "sistema_escolar";
+$host = "nue.domcloud.co"; 
+$user = "sitiosergio";
+$pass = "j_6)55P_zdHiP8jY2W";
+$db   = "sitiosergio_sistema_escolar";
 
 $conn = new mysqli($host, $user, $pass, $db);
 
@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="col-11 col-sm-8 col-md-4 col-lg-4">
                 <div class="card shadow-lg p-5 border-0" style="border-radius: 20px;">
                     <div class="text-center mb-5">
-                        <h1 class="fw-bold fs-1" style="color: #8A3324;">Tec San Pedro</h1>
+                        <h1 class="fw-bold fs-1" style="color: #800020;">Tec San Pedro</h1>
                         <p class="text-muted">Gestión de Control Escolar</p>
                     </div>
 
@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
 
                         <div class="d-grid gap-2 mt-5">
-                            <button type="submit" class="btn btn-lg fw-bold shadow-sm py-3" style="background-color: #8A3324; color: white;">
+                            <button type="submit" class="btn btn-lg fw-bold shadow-sm py-3" style="background-color: #800020; color: white;">
                                 INGRESAR AL PORTAL
                             </button>
                         </div>

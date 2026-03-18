@@ -38,7 +38,7 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 <body style="background-color: #f8f9fa;">
 <div class="container mt-5">
     <div class="card shadow-sm border-0 mx-auto" style="max-width: 600px;">
-        <div class="card-header text-white" style="background-color: #7B1E27;">
+        <div class="card-header text-white" style="background-color: #800020;">
             <h4 class="mb-0">Editar Usuario: <?php echo htmlspecialchars($usuario['matricula']); ?></h4>
         </div>
         <div class="card-body">
@@ -72,7 +72,7 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
                 </div>
                 <div class="d-flex justify-content-between">
                     <a href="gestion_usuarios.php" class="btn btn-secondary">Cancelar</a>
-                    <button type="submit" class="btn text-white" style="background-color: #7B1E27;">Guardar Cambios</button>
+                    <button type="submit" class="btn text-white" style="background-color: #800020;">Guardar Cambios</button>
                 </div>
             </form>
         </div>
