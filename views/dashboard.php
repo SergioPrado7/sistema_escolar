@@ -29,7 +29,7 @@
     <main class="main_contenido">
         
         <header class="top_header">
-            <h1 class="titulo" style="display: block; margin: 0 auto;">Gestor de alumnos</h1>
+            <h1 class="titulo" style="display: block; margin: 0 auto;">Sistema Gestor Tec San Pedro</h1>
             <div class="perfil">
                 <span class="perfil_texto">Mi Perfil</span>
                 <div class="perfil_foto"></div>
