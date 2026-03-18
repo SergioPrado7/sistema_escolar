@@ -34,7 +34,7 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuMovil">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <span class="text-white fw-bold">Gestor de Alumnos</span>
+                <span class="text-white fw-bold">Gestor Tec San Pedro</span>
                 
                 <div class="collapse navbar-collapse" id="menuMovil">
                     <div class="d-flex flex-column gap-2 mt-3">
@@ -51,7 +51,7 @@
 
         <main class="main_contenido">
             <header class="top_header">
-                <h1 class="titulo text-center flex-grow-1">Gestor de alumnos</h1>
+                <h1 class="titulo text-center flex-grow-1">Gestor Tec San Pedro</h1>
                 
                 <div class="perfil">
                     <span class="perfil_texto">Mi Perfil</span>
