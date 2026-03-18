@@ -2,17 +2,17 @@
 session_start();
 require_once '../config/database.php';
 
-// Validar que solo el Administrador pueda entrar aquí (Seguridad Pro)
+
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] != 'Administrador') {
     header("Location: dashboard.php");
     exit();
 }
 
-// Conexión para listar los usuarios actuales
+
 $conexion = new Conexion();
 $db = $conexion->getConnection();
 
-// Consulta SQL usando JOIN para traer los datos del usuario y su nombre real
+
 $query = "SELECT u.id_usuario, u.matricula, u.rol, u.estatus, p.nombre, p.apellido_paterno 
           FROM usuarios u 
           LEFT JOIN personas p ON u.id_usuario = p.id_usuario";
