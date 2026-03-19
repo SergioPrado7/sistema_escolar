@@ -1,4 +1,10 @@
-<?php session_start(); ?>
+<?php 
+session_start(); 
+if (!isset($_SESSION['rol'])) {
+    header("Location: login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,6 +13,7 @@
     <title>Panel Principal - Gestor de Alumnos</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
     <link rel="stylesheet" href="../styles/estilo.css">
     
@@ -22,9 +29,11 @@
             </div>
             <div class="menu_links">
                 <a href="dashboard.php" class="item">Panel Principal</a>
-                <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
-                 <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
+                
+                <?php if ($_SESSION['rol'] == 'Administrador'): ?>
+                <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                 <?php endif; ?>
+                
                 <a href="#" class="item">Mis Calificaciones</a>
                 <a href="#" class="item">Finanzas y Pagos</a>
                 <a href="#" class="item">Carga Academica</a>
@@ -42,13 +51,11 @@
                 <div class="collapse navbar-collapse" id="menuMovil">
                     <div class="d-flex flex-column gap-2 mt-3">
                         <a href="dashboard.php" class="item">Panel Principal</a>
-                        <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
+                        <?php if ($_SESSION['rol'] == 'Administrador'): ?>
                         <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                         <?php endif; ?>
                         <a href="#" class="item">Mis Calificaciones</a>
-                        <a href="#" class="item">Finanzas y Pagos</a>
                         <a href="#" class="item">Carga Academica</a>
-                        <a href="#" class="item">Servicio Social</a>
                     </div>
                 </div>
             </div>
@@ -58,9 +65,24 @@
             <header class="top_header">
                 <h1 class="titulo text-center flex-grow-1">Gestor Tec San Pedro</h1>
                 
-                <div class="perfil">
-                    <span class="perfil_texto">Mi Perfil</span>
-                    <div class="perfil_foto"></div>
+                <div class="dropdown">
+                    <div class="perfil dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                        <span class="perfil_texto">Mi Perfil</span>
+                        <div class="perfil_foto"></div>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2">
+                        <li>
+                            <a class="dropdown-item btn-config mb-2" href="configuracion.php">
+                                <i class="bi bi-gear-fill"></i> Configuración
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item btn-logout" href="../controllers/logout.php">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </header>
 
