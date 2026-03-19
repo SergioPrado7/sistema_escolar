@@ -43,7 +43,7 @@
                     <div class="d-flex flex-column gap-2 mt-3">
                         <a href="dashboard.php" class="item">Panel Principal</a>
                         <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
-                        <a href="gestion_usuarios.php" class="...">Gestión Usuarios</a>
+                        <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                         <?php endif; ?>
                         <a href="#" class="item">Mis Calificaciones</a>
                         <a href="#" class="item">Finanzas y Pagos</a>
