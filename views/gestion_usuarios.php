@@ -13,7 +13,7 @@ $conexion = new Conexion();
 $db = $conexion->getConnection();
 
 
-$query = "SELECT u.id_usuario, u.matricula, u.rol, u.estatus, p.nombre, p.apellido_paterno 
+$query = "SELECT u.id_usuario, u.matricula, u.correo, u.rol, u.estatus, p.nombre, p.apellido_paterno 
           FROM usuarios u 
           LEFT JOIN personas p ON u.id_usuario = p.id_usuario";
 $stmt = $db->prepare($query);
@@ -141,6 +141,10 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="col-12 col-md-6 mb-3">
                     <label class="form-label">Apellido Paterno</label>
                     <input type="text" name="apellido" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Correo Electrónico</label>
+                    <input type="email" name="correo" class="form-control" required>
                 </div>
             </div>
             <div class="mb-3">

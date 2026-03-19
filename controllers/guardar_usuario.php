@@ -9,6 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $matricula = $_POST['matricula'];
     $nombre = $_POST['nombre'];
     $apellido = $_POST['apellido'];
+    $correo    = $_POST['correo'];
     $rol = $_POST['rol'];
     $password_plana = $_POST['password'];
 
@@ -24,12 +25,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $db->beginTransaction();
 
         
-        $query_usuario = "INSERT INTO usuarios (matricula, password, rol, estatus) VALUES (:matricula, :password, :rol, 'Activo')";
+        $query_usuario = "INSERT INTO usuarios (matricula, correo, password, rol, estatus) VALUES (:matricula, :correo, :password, :rol, 'Activo')";
         $stmt_usuario = $db->prepare($query_usuario);
         $stmt_usuario->execute([
             ':matricula' => $matricula,
+            ':correo' => $correo,
             ':password' => $password_hash,
-            ':rol' => $rol
+            ':rol' => $rol,
         ]);
 
         
