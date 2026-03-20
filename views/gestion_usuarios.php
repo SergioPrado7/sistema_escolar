@@ -39,7 +39,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="menu_links">
             <a href="dashboard.php" class="item">Panel Principal</a>
             <a href="gestion_usuarios.php" class="item active">Gestión Usuarios</a>
-            <a href="#" class="item">Mis Calificaciones</a>
+            <a href="#" class="item">Calificaciones</a>
             <a href="#" class="item">Finanzas y Pagos</a>
             <a href="#" class="item">Carga Academica</a>
             <a href="#" class="item">Servicio Social</a>
