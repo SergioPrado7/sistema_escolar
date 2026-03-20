@@ -14,7 +14,6 @@ if (!isset($_SESSION['rol'])) {
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
     <link rel="stylesheet" href="../styles/estilo.css">
     
     <link rel="icon" type="image/x-icon" href="../assets/iconos/gestionIcono.ico">
@@ -55,7 +54,6 @@ if (!isset($_SESSION['rol'])) {
                         <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                         <?php endif; ?>
                         <a href="#" class="item">Mis Calificaciones</a>
-                        <a href="#" class="item">Carga Academica</a>
                     </div>
                 </div>
             </div>
@@ -72,9 +70,7 @@ if (!isset($_SESSION['rol'])) {
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2">
                         <li>
-                            <a class="dropdown-item btn-config mb-2" href="configuracion.php">
-                                <i class="bi bi-gear-fill"></i> Configuración
-                            </a>
+                            <p class="dropdown-header fw-bold text-dark mb-0">Opciones de cuenta</p>
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
@@ -86,7 +82,7 @@ if (!isset($_SESSION['rol'])) {
                 </div>
             </header>
 
-            <section class="dashboard">
+            <section class="dashboard p-4">
                 <h1 class="seccion_titulo">Materias Inscritas</h1>
                 
                 <div class="row g-4">
