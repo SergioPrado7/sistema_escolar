@@ -60,11 +60,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $mail->Body    = "
                 <html>
                 <body style='font-family: sans-serif;'>
-                    <h2 style='color: #8A3324;'>Recuperación de Acceso</h2>
+                    <h2 style='color: #800020;'>Recuperación de Acceso</h2>
                     <p>Has solicitado restablecer tu contraseña para el sistema de Control Escolar.</p>
                     <p>Haz clic en el siguiente botón para continuar:</p>
                     <a href='https://sitiosergio.nue.dom.my.id/sistema_escolar/views/restablecer.php?token=$token' 
-                       style='background-color: #8A3324; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; display: inline-block;'>
+                       style='background-color: #800020; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; display: inline-block;'>
                        Restablecer Contraseña
                     </a>
                     <p style='margin-top: 20px; font-size: 0.8em; color: #666;'>Este enlace expirará en 1 hora.</p>
@@ -110,7 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 
                 <div class="card shadow-lg p-5 border-0">
                     <div class="text-center mb-4">
-                        <h2 class="fw-bold" style="color: #8A3324;">Recuperar Acceso</h2>
+                        <h2 class="fw-bold" style="color: #800020;">Recuperar Acceso</h2>
                         <p class="text-muted small">Usa tu correo institucional para recibir las instrucciones.</p>
                     </div>
 
@@ -125,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-lg fw-bold shadow-sm py-3" style="background-color: #8A3324; color: white;">
+                            <button type="submit" class="btn btn-lg fw-bold shadow-sm py-3" style="background-color: #800020; color: white;">
                                 ENVIAR ENLACE
                             </button>
                         </div>
