@@ -2,18 +2,15 @@
 session_start();
 require_once '../config/database.php';
 
-
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] != 'Administrador') {
     header("Location: dashboard.php");
     exit();
 }
 
-
 $conexion = new Conexion();
 $db = $conexion->getConnection();
 
-
-$query = "SELECT u.id_usuario, u.matricula, u.rol, u.estatus, p.nombre, p.apellido_paterno 
+$query = "SELECT u.id_usuario, u.matricula, u.correo, u.rol, u.estatus, p.nombre, p.apellido_paterno 
           FROM usuarios u 
           LEFT JOIN personas p ON u.id_usuario = p.id_usuario";
 $stmt = $db->prepare($query);
@@ -27,44 +24,49 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Usuarios - Tec San Pedro</title>
-    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../node_modules/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../styles/estilo.css">
-    <style>
-        /* Ajustes únicamente para responsividad. Tu diseño queda intacto. */
-        @media (min-width: 768px) {
-            .sidebar-responsivo { min-height: 100vh; position: sticky; top: 0; }
-        }
-        @media (max-width: 767px) {
-            .sidebar-responsivo { border-right: none !important; border-bottom: 1px solid #ddd; padding-bottom: 20px !important; }
-            .header-movil { flex-direction: column; gap: 15px; text-align: center; }
-            .header-movil h1 { font-size: 1.8rem; }
-        }
-        /* Evita que se vea deforme en monitores ultra anchos */
-        @media (min-width: 1400px) {
-            .contenedor-limite { max-width: 1500px; margin: 0 auto; }
-        }
-    </style>
 </head>
-<body style="background-color: #f8f9fa;">
+<body>
 
-<div class="container-fluid contenedor-limite">
-    <div class="row">
-        <div class="col-12 col-md-3 col-lg-2 p-3 bg-white sidebar-responsivo" style="border-right: 1px solid #ddd;">
-            <div class="text-center mb-4">
-                <img src="../assets/logos/logoPrincipalLogin.png" alt="Tec San Pedro" class="img-fluid" style="max-width: 150px;">
-            </div>
-            <div class="d-grid gap-2">
-                <a href="dashboard.php" class="btn text-white" style="background-color: #800020;">Panel Principal</a>
-                <a href="gestion_usuarios.php" class="btn text-white fw-bold" style="background-color: #5a151c;">Gestión Usuarios</a>
-                <a href="#" class="btn text-white" style="background-color: #800020;">Carga Académica</a>
+<div class="container-fluid p-0 d-flex flex-column flex-md-row">
+    
+    <nav class="sidebar d-none d-md-flex">
+        <div class="logo_foto">
+            <img src="../assets/logos/logoPrincipalLogin.png" alt="Logo" style="max-width: 180px; height: auto;">
+        </div>
+        <div class="menu_links">
+            <a href="dashboard.php" class="item">Panel Principal</a>
+            <a href="gestion_usuarios.php" class="item active">Gestión Usuarios</a>
+            <a href="#" class="item">Calificaciones</a>
+            <a href="#" class="item">Finanzas y Pagos</a>
+            <a href="#" class="item">Carga Academica</a>
+            <a href="#" class="item">Servicio Social</a>
+        </div>
+    </nav>
+
+    <nav class="navbar navbar-dark d-md-none p-3 w-100" style="background-color: var(--rojo-vino) !important; z-index: 1000;">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuMovil">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <span class="text-white fw-bold">Gestión de Usuarios</span>
+            <div class="collapse navbar-collapse" id="menuMovil">
+                <div class="d-flex flex-column gap-2 mt-3">
+                    <a href="dashboard.php" class="item">Panel Principal</a>
+                    <a href="gestion_usuarios.php" class="item active">Gestión Usuarios</a>
+                    <a href="#" class="item">Carga Academica</a>
+                </div>
             </div>
         </div>
+    </nav>
 
-        <div class="col-12 col-md-9 col-lg-10 p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4 header-movil">
-                <h1 style="color: #800020; font-weight: bold;">Gestión de Usuarios</h1>
-                <button class="btn text-white" style="background-color: #800020;" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
+    <main class="main_contenido">
+        <div class="p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 style="color: var(--rojo-vino); font-weight: bold;">Gestión de Usuarios</h1>
+                <button class="btn text-white" style="background-color: var(--rojo-vino);" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
                     <i class="bi bi-person-plus-fill"></i> Nuevo Usuario
                 </button>
             </div>
@@ -80,7 +82,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
-                            <thead style="color: #800020;">
+                            <thead style="color: var(--rojo-vino);">
                                 <tr>
                                     <th>Matrícula</th>
                                     <th>Nombre Completo</th>
@@ -114,16 +116,15 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 </div>
 
-<script src="../node_modules/@popperjs/core/dist/umd/popper.min.js"></script>
-<script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <div class="modal fade" id="modalNuevoUsuario" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header" style="background-color: #800020; color: white;">
+      <div class="modal-header" style="background-color: var(--rojo-vino); color: white;">
         <h5 class="modal-title" id="modalLabel">Registrar Nuevo Usuario</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
@@ -144,6 +145,10 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
             <div class="mb-3">
+                <label class="form-label">Correo Electrónico</label>
+                <input type="email" name="correo" class="form-control" required>
+            </div>
+            <div class="mb-3">
                 <label class="form-label">Rol del Sistema</label>
                 <select name="rol" class="form-select" required>
                     <option value="Alumno">Alumno</option>
@@ -158,7 +163,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn text-white" style="background-color: #800020;">Guardar Usuario</button>
+            <button type="submit" class="btn text-white" style="background-color: var(--rojo-vino);">Guardar Usuario</button>
           </div>
       </form>
     </div>
