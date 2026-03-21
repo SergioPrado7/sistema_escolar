@@ -33,10 +33,17 @@ if (!isset($_SESSION['rol'])) {
                 <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                 <?php endif; ?>
                 
-                <a href="#" class="item">Mis Calificaciones</a>
+                <a href="#" class="item">Calificaciones</a>
+                
+                <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                 <a href="#" class="item">Finanzas y Pagos</a>
+                <?php endif; ?>
+                
                 <a href="#" class="item">Carga Academica</a>
+                
+                <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                 <a href="#" class="item">Servicio Social</a>
+                <?php endif; ?>
             </div>
         </nav>
 
@@ -50,10 +57,22 @@ if (!isset($_SESSION['rol'])) {
                 <div class="collapse navbar-collapse" id="menuMovil">
                     <div class="d-flex flex-column gap-2 mt-3">
                         <a href="dashboard.php" class="item">Panel Principal</a>
+                        
                         <?php if ($_SESSION['rol'] == 'Administrador'): ?>
                         <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                         <?php endif; ?>
-                        <a href="#" class="item">Mis Calificaciones</a>
+                        
+                        <a href="#" class="item">Calificaciones</a>
+                        
+                        <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
+                        <a href="#" class="item">Finanzas y Pagos</a>
+                        <?php endif; ?>
+                        
+                        <a href="#" class="item">Carga Academica</a>
+                        
+                        <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
+                        <a href="#" class="item">Servicio Social</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
