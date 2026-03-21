@@ -84,7 +84,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <a href="#" class="item">Calificaciones</a>
             <a href="finanzas.php" class="item">Finanzas y Pagos</a>
             <a href="#" class="item">Carga Academica</a>
-            <a href="#" class="item">Servicio Social</a>
+            <a href="servicio_social.php" class="item">Servicio Social</a>
         </div>
     </nav>
 
@@ -102,7 +102,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <a href="#" class="item">Calificaciones</a>
                     <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                     <a href="#" class="item">Carga Academica</a>
-                    <a href="#" class="item">Servicio Social</a>
+                    <a href="servicio_social.php" class="item">Servicio Social</a>
                 </div>
             </div>
         </div>
