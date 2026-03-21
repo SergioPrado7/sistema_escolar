@@ -36,7 +36,7 @@ if (!isset($_SESSION['rol'])) {
                 <a href="#" class="item">Calificaciones</a>
                 
                 <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
-                <a href="#" class="item">Finanzas y Pagos</a>
+                <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                 <?php endif; ?>
                 
                 <a href="#" class="item">Carga Academica</a>
@@ -65,7 +65,7 @@ if (!isset($_SESSION['rol'])) {
                         <a href="#" class="item">Calificaciones</a>
                         
                         <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
-                        <a href="#" class="item">Finanzas y Pagos</a>
+                        <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                         <?php endif; ?>
                         
                         <a href="#" class="item">Carga Academica</a>
