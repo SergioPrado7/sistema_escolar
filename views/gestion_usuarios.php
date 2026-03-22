@@ -99,6 +99,10 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="d-flex flex-column gap-2 mt-3">
                     <a href="dashboard.php" class="item">Panel Principal</a>
                     <a href="gestion_usuarios.php" class="item active">Gestión Usuarios</a>
+                    <a href="#" class="item active">Calificaciones</a>
+                    <a href="finanzas.php" class="item active">Finanzas y Pagos</a>
+                    <a href="#.php" class="item active">Carga Academica</a>
+                    <a href="servicio_social.php" class="item active">Servicio Social</a>
                 </div>
             </div>
         </div>
