@@ -40,20 +40,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { 
-            background-color: #f4f7f6; 
+            position: relative;
             min-height: 100vh; 
+            margin: 0;
+            background-color: #000;
         }
-        /* Limita el ancho en monitores muy grandes para que no se vea desproporcionado */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -20px; left: -20px; right: -20px; bottom: -20px; 
+            background-image: url('../assets/logos/fondo_tecnologico.webp'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(12px); 
+            opacity: 0.6; 
+            z-index: -1;
+        }
+
         .login-wrapper {
             max-width: 1200px;
             width: 100%;
+            z-index: 1;
         }
+
         .card { 
             border-radius: 1.5rem; 
-            border: none; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            
+            background-color: rgba(255, 255, 255, 0.9) !important; 
+            
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            
             transition: transform 0.3s ease;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2) !important;
         }
-        /* Ajuste de fuentes para móviles */
+
         @media (max-width: 576px) {
             h1 { font-size: 1.8rem !important; }
             .card { padding: 1.5rem !important; }
@@ -67,10 +90,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="row justify-content-center align-items-center g-4">
             
             <div class="col-12 col-md-6 col-lg-5 col-xl-5">
-                <div class="card shadow-lg p-4 p-md-5 bg-white">
+                <div class="card p-4 p-md-5">
                     <div class="text-center mb-4 mb-md-5">
                         <h1 class="fw-bold display-6" style="color: #800020;">Tec San Pedro</h1>
-                        <p class="text-muted">Gestión de Control Escolar</p>
+                        <p class="text-muted fw-semibold">Gestión de Control Escolar</p>
                     </div>
 
                     <?php if ($error): ?>
@@ -80,16 +103,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <form method="POST" action="">
                         <div class="mb-3 mb-md-4">
                             <label class="form-label fw-bold text-secondary">Matrícula</label>
-                            <input type="text" name="matricula" class="form-control form-control-lg bg-light border-0" placeholder="Ingresa tu matrícula" required>
+                            <input type="text" name="matricula" class="form-control form-control-lg bg-light border-0 shadow-sm" placeholder="Ingresa tu matrícula" required>
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label fw-bold text-secondary">Contraseña</label>
-                            <input type="password" name="password" class="form-control form-control-lg bg-light border-0" placeholder="********" required>
+                            <input type="password" name="password" class="form-control form-control-lg bg-light border-0 shadow-sm" placeholder="********" required>
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-lg fw-bold shadow-sm py-3 text-white" style="background-color: #800020;">
+                            <button type="submit" class="btn btn-lg fw-bold shadow py-3 text-white" style="background-color: #800020; letter-spacing: 1px;">
                                 INGRESAR AL PORTAL
                             </button>
                         </div>
@@ -98,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="text-center mt-4 mt-md-5">
                         <hr class="text-muted opacity-25">
                         <a href="recuperar.php" class="text-decoration-none text-secondary small">
-                            ¿Problemas para entrar? <strong>Recuperar acceso</strong>
+                            ¿Problemas para entrar? <strong style="color: #800020;">Recuperar acceso</strong>
                         </a>
                     </div>
                 </div>
@@ -106,7 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class="col-md-6 col-lg-5 col-xl-5 d-none d-md-block text-center">
                 <div class="p-4">
-                    <img src="../assets/logos/logoPrincipalLogin.png" alt="Logo Tec" class="img-fluid" style="max-height: 400px; width: auto;">
+                    <img src="../assets/logos/logoPrincipalLogin.png" alt="Logo Tec" class="img-fluid" style="max-height: 400px; width: auto; filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.3));">
                 </div>
             </div>
 
