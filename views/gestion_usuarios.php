@@ -82,10 +82,27 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <img src="../assets/logos/logoPrincipalLogin.png" alt="Logo" style="max-width: 180px; height: auto;">
             </div>
             <div class="menu_links">
+                
                 <a href="dashboard.php" class="item">Panel Principal</a>
-                <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
+                
+                <?php if ($_SESSION['rol'] == 'Administrador'): ?>
                 <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                 <?php endif; ?>
+                
+                <a href="#" class="item">Calificaciones</a>
+                
+                <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
+                <a href="finanzas.php" class="item">Finanzas y Pagos</a>
+                <?php endif; ?>
+   
+                <?php if ($_SESSION['rol'] == 'Administrador'): ?>
+                <a href="carga_academica.php" class="item">Carga Academica</a>
+                <?php endif; ?>
+                
+                <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
+                <a href="servicio_social.php" class="item">Servicio Social</a>
+                <?php endif; ?>
+
             </div>
         </nav>
 
@@ -99,6 +116,10 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="d-flex flex-column gap-2 mt-3">
                     <a href="dashboard.php" class="item">Panel Principal</a>
                     <a href="gestion_usuarios.php" class="item active">Gestión Usuarios</a>
+                    <a href="#" class="item active">Calificaciones</a>
+                    <a href="finanzas.php" class="item active">Finanzas y Pagos</a>
+                    <a href="#.php" class="item active">Carga Academica</a>
+                    <a href="servicio_social.php" class="item active">Servicio Social</a>
                 </div>
             </div>
         </div>
