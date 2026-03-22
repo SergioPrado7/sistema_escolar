@@ -108,7 +108,7 @@ $res_carreras = $conexion->query($sql_carreras);
             <a href="#" class="item">Calificaciones</a>
             <a href="finanzas.php" class="item active">Finanzas y Pagos</a>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
-            <a href="gestion_academica.php" class="item">Carga Academica</a>
+            <a href="gestion_academica.php" class="item">Gestión Academica</a>
             <?php endif; ?>
             <a href="servicio_social.php" class="item">Servicio Social</a>
         </div>
@@ -129,7 +129,7 @@ $res_carreras = $conexion->query($sql_carreras);
                     <a href="#" class="item">Calificaciones</a>
                     <a href="finanzas.php" class="item active">Finanzas y Pagos</a>
                     <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
-                    <a href="gestion_academica.php" class="item">Carga Academica</a>
+                    <a href="gestion_academica.php" class="item">Gestión Academica</a>
                     <?php endif; ?>
                     <a href="servicio_social.php" class="item">Servicio Social</a>
                 </div>

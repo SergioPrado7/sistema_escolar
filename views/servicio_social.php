@@ -86,7 +86,7 @@ $filtro_estatus = $_GET['estatus_filter'] ?? '';
             <a href="#" class="item">Calificaciones</a>
             <a href="finanzas.php" class="item">Finanzas y Pagos</a>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
-            <a href="gestion_academica.php" class="item">Carga Academica</a>
+            <a href="gestion_academica.php" class="item">Gestión Academica</a>
             <?php endif; ?>
             <a href="servicio_social.php" class="item active">Servicio Social</a>
         </div>
@@ -107,7 +107,7 @@ $filtro_estatus = $_GET['estatus_filter'] ?? '';
                     <a href="#" class="item">Calificaciones</a>
                     <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                     <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
-                    <a href="gestion_academica.php" class="item">Carga Academica</a>
+                    <a href="gestion_academica.php" class="item">Gestión Academica</a>
                     <?php endif; ?>
                     <a href="servicio_social.php" class="item active">Servicio Social</a>
                 </div>
