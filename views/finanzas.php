@@ -110,7 +110,7 @@ $res_carreras = $conexion->query($sql_carreras);
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
             <a href="gestion_academica.php" class="item">Carga Academica</a>
             <?php endif; ?>
-            <a href="#" class="item">Servicio Social</a>
+            <a href="servicio_social.php" class="item">Servicio Social</a>
         </div>
     </nav>
 
