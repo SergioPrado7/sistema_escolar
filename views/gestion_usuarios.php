@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 require_once '../config/database.php';
 
@@ -32,19 +35,17 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container-fluid p-0 d-flex flex-column flex-md-row">
     
-    <nav class="sidebar d-none d-md-flex">
-        <div class="logo_foto">
-            <img src="../assets/logos/logoPrincipalLogin.png" alt="Logo" style="max-width: 180px; height: auto;">
-        </div>
-        <div class="menu_links">
-            <a href="dashboard.php" class="item">Panel Principal</a>
-            <a href="gestion_usuarios.php" class="item active">Gestión Usuarios</a>
-            <a href="#" class="item">Calificaciones</a>
-            <a href="#" class="item">Finanzas y Pagos</a>
-            <a href="#" class="item">Carga Academica</a>
-            <a href="#" class="item">Servicio Social</a>
-        </div>
-    </nav>
+        <nav class="sidebar d-none d-md-flex">
+            <div class="logo_foto">
+                <img src="../assets/logos/logoPrincipalLogin.png" alt="Logo" style="max-width: 180px; height: auto;">
+            </div>
+            <div class="menu_links">
+                <a href="dashboard.php" class="item">Panel Principal</a>
+                <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
+                <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
+                <?php endif; ?>
+            </div>
+        </nav>
 
     <nav class="navbar navbar-dark d-md-none p-3 w-100" style="background-color: var(--rojo-vino) !important; z-index: 1000;">
         <div class="container-fluid">
@@ -56,7 +57,6 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="d-flex flex-column gap-2 mt-3">
                     <a href="dashboard.php" class="item">Panel Principal</a>
                     <a href="gestion_usuarios.php" class="item active">Gestión Usuarios</a>
-                    <a href="#" class="item">Carga Academica</a>
                 </div>
             </div>
         </div>
@@ -86,6 +86,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <tr>
                                     <th>Matrícula</th>
                                     <th>Nombre Completo</th>
+                                    <th>Correo</th>
                                     <th>Rol</th>
                                     <th>Estatus</th>
                                     <th>Acciones</th>
@@ -96,6 +97,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <tr>
                                     <td class="fw-bold"><?php echo htmlspecialchars($user['matricula']); ?></td>
                                     <td><?php echo htmlspecialchars($user['nombre'] . ' ' . $user['apellido_paterno']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['correo']); ?></td>
                                     <td><span class="badge bg-secondary"><?php echo htmlspecialchars($user['rol']); ?></span></td>
                                     <td>
                                         <?php if($user['estatus'] == 'Activo'): ?>

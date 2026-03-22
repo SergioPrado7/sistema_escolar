@@ -47,9 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ]);
 
        
-        $db->commit();
-
-        
+        $db->commit();        
         header("Location: ../views/gestion_usuarios.php");
         exit();
 

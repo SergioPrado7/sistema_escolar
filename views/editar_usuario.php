@@ -54,6 +54,10 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
                         <label class="form-label">Apellido Paterno</label>
                         <input type="text" name="apellido" class="form-control" value="<?php echo htmlspecialchars($usuario['apellido_paterno']); ?>" required>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Correo Electrónico</label>
+                        <input type="email" name="correo" class="form-control" value="<?php echo htmlspecialchars($usuario['correo']); ?>" required>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Rol del Sistema</label>

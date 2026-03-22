@@ -5,6 +5,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_usuario = $_POST['id_usuario'];
     $nombre = $_POST['nombre'];
     $apellido = $_POST['apellido'];
+    $correo = $_POST['correo'];
     $rol = $_POST['rol'];
     $estatus = $_POST['estatus'];
 
@@ -24,9 +25,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ]);
 
         //  Actualizar el rol y estatus en la tabla 'usuarios'
-        $query_usuario = "UPDATE usuarios SET rol = :rol, estatus = :estatus WHERE id_usuario = :id";
+        $query_usuario = "UPDATE usuarios SET correo = :correo, rol = :rol, estatus = :estatus WHERE id_usuario = :id";
         $stmt_usuario = $db->prepare($query_usuario);
         $stmt_usuario->execute([
+            ':correo' => $correo,
             ':rol' => $rol,
             ':estatus' => $estatus,
             ':id' => $id_usuario
