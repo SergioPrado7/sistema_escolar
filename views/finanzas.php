@@ -111,6 +111,9 @@ $res_carreras = $conexion->query($sql_carreras);
             <a href="gestion_academica.php" class="item">Gestión Academica</a>
             <?php endif; ?>
             <a href="servicio_social.php" class="item">Servicio Social</a>
+            <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Alumno'): ?>
+            <a href="kardex.php" class="item active">Kardex</a>
+            <?php endif; ?>
         </div>
     </nav>
 
@@ -132,6 +135,9 @@ $res_carreras = $conexion->query($sql_carreras);
                     <a href="gestion_academica.php" class="item">Gestión Academica</a>
                     <?php endif; ?>
                     <a href="servicio_social.php" class="item">Servicio Social</a>
+                    <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Alumno'): ?>
+                    <a href="kardex.php" class="item active">Kardex</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
