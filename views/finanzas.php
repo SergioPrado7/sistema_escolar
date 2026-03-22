@@ -127,7 +127,7 @@ $res_carreras = $conexion->query($sql_carreras);
                     <a href="#" class="item">Calificaciones</a>
                     <a href="finanzas.php" class="item active">Finanzas y Pagos</a>
                     <a href="#" class="item">Carga Academica</a>
-                    <a href="#" class="item">Servicio Social</a>
+                    <a href="servicio_social.php" class="item">Servicio Social</a>
                 </div>
             </div>
         </div>
@@ -186,7 +186,6 @@ $res_carreras = $conexion->query($sql_carreras);
                                     <select name="concepto" class="form-select" required>
                                         <option value="Inscripción">Inscripción</option>
                                         <option value="Reinscripción">Reinscripción</option>
-                                        <option value="Semestre">Semestre</option>
                                         <option value="Inglés">Inglés</option>
                                     </select>
                                 </div>
