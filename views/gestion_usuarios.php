@@ -96,7 +96,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php endif; ?>
    
                 <?php if ($_SESSION['rol'] == 'Administrador'): ?>
-                <a href="carga_academica.php" class="item">Carga Academica</a>
+                <a href="gestion_academica.php" class="item">Gestión Académica</a>
                 <?php endif; ?>
                 
                 <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
@@ -118,7 +118,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <a href="gestion_usuarios.php" class="item active">Gestión Usuarios</a>
                     <a href="#" class="item active">Calificaciones</a>
                     <a href="finanzas.php" class="item active">Finanzas y Pagos</a>
-                    <a href="#.php" class="item active">Carga Academica</a>
+                    <a href="gestion_academica.php" class="item active">Gestión Académica</a>
                     <a href="servicio_social.php" class="item active">Servicio Social</a>
                 </div>
             </div>
