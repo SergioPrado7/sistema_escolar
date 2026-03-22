@@ -40,7 +40,7 @@ if (!isset($_SESSION['rol'])) {
                 <?php endif; ?>
    
                 <?php if ($_SESSION['rol'] == 'Administrador'): ?>
-                <a href="carga_academica.php" class="item">Carga Academica</a>
+                <a href="gestion_academica.php" class="item">Gestión Académica</a>
                 <?php endif; ?>
                 
                 <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
@@ -71,7 +71,7 @@ if (!isset($_SESSION['rol'])) {
                         <?php endif; ?>
                         
                         <?php if ($_SESSION['rol'] == 'Administrador'): ?>
-                        <a href="carga_academica.php" class="item">Carga Academica</a>
+                        <a href="gestion_academica.php" class="item">Gestión Académica</a>
                         <?php endif; ?>
                          
                         <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
