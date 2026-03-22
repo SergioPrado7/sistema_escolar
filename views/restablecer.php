@@ -78,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $mostrar_formulario) {
             <div class="col-11 col-sm-8 col-md-5">
                 <div class="card shadow-lg p-5 border-0">
                     <div class="text-center mb-4">
-                        <h2 class="fw-bold" style="color: #8A3324;">Nueva Contraseña</h2>
+                        <h2 class="fw-bold" style="color: #800020;">Nueva Contraseña</h2>
                         <p class="text-muted small">Crea una clave segura para tu cuenta.</p>
                     </div>
 
@@ -97,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $mostrar_formulario) {
                                 <input type="password" name="confirm_password" class="form-control form-control-lg bg-light" placeholder="********" required>
                             </div>
                             <div class="d-grid gap-2 mt-4">
-                                <button type="submit" class="btn btn-lg fw-bold shadow-sm py-3" style="background-color: #8A3324; color: white;">
+                                <button type="submit" class="btn btn-lg fw-bold shadow-sm py-3" style="background-color: #800020; color: white;">
                                     GUARDAR CAMBIOS
                                 </button>
                             </div>
