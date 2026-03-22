@@ -38,8 +38,10 @@ if (!isset($_SESSION['rol'])) {
                 <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                 <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                 <?php endif; ?>
-                
+   
+                <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                 <a href="#" class="item">Carga Academica</a>
+                <?php endif; ?>
                 
                 <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                 <a href="servicio_social.php" class="item">Servicio Social</a>
@@ -68,8 +70,10 @@ if (!isset($_SESSION['rol'])) {
                         <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                         <?php endif; ?>
                         
+                        <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                         <a href="#" class="item">Carga Academica</a>
-                        
+                         <?php endif; ?>
+                         
                         <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                         <a href="servicio_social.php" class="item">Servicio Social</a>
                         <?php endif; ?>
