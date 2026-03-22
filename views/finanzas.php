@@ -107,7 +107,9 @@ $res_carreras = $conexion->query($sql_carreras);
             <?php endif; ?>
             <a href="#" class="item">Calificaciones</a>
             <a href="finanzas.php" class="item active">Finanzas y Pagos</a>
-            <a href="#" class="item">Carga Academica</a>
+            <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
+            <a href="gestion_academica.php" class="item">Carga Academica</a>
+            <?php endif; ?>
             <a href="#" class="item">Servicio Social</a>
         </div>
     </nav>
@@ -126,7 +128,9 @@ $res_carreras = $conexion->query($sql_carreras);
                     <?php endif; ?>
                     <a href="#" class="item">Calificaciones</a>
                     <a href="finanzas.php" class="item active">Finanzas y Pagos</a>
-                    <a href="#" class="item">Carga Academica</a>
+                    <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
+                    <a href="gestion_academica.php" class="item">Carga Academica</a>
+                    <?php endif; ?>
                     <a href="servicio_social.php" class="item">Servicio Social</a>
                 </div>
             </div>
@@ -402,7 +406,6 @@ $res_carreras = $conexion->query($sql_carreras);
                 <select name="concepto_edit" id="edit_concepto" class="form-select" required>
                     <option value="Inscripción">Inscripción</option>
                     <option value="Reinscripción">Reinscripción</option>
-                    <option value="Semestre">Semestre</option>
                     <option value="Inglés">Inglés</option>
                 </select>
             </div>
