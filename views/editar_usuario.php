@@ -18,7 +18,7 @@ $conexion = new Conexion();
 $db = $conexion->getConnection();
 
 // Traer los datos actuales del usuario (incluyendo su carrera si es alumno)
-$query = "SELECT u.id_usuario, u.matricula, u.rol, u.estatus, p.nombre, p.apellido_paterno, ad.id_carrera 
+$query = "SELECT u.id_usuario, u.matricula, u.correo, u.rol, u.estatus, p.nombre, p.apellido_paterno, ad.id_carrera 
           FROM usuarios u 
           LEFT JOIN personas p ON u.id_usuario = p.id_usuario 
           LEFT JOIN alumnos_detalles ad ON u.id_usuario = ad.id_alumno
