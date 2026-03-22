@@ -62,7 +62,7 @@ $sql_materias = "SELECT h.id_horario, h.id_grupo, m.nombre_materia AS materia, p
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión Académica - Tec San Pedro</title>
+    <title>Carga Académica - Tec San Pedro</title>
     <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../node_modules/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../styles/estilo.css">
@@ -77,7 +77,7 @@ $sql_materias = "SELECT h.id_horario, h.id_grupo, m.nombre_materia AS materia, p
             </div>
             <div class="menu_links">
                 <a href="dashboard.php" class="item">Panel Principal</a>
-                <a href="carga_academica.php" class="item">Gestión Academica</a>
+                <a href="carga_academica.php" class="item">Carga Academica</a>
             </div>
     </nav>
 
@@ -90,7 +90,7 @@ $sql_materias = "SELECT h.id_horario, h.id_grupo, m.nombre_materia AS materia, p
             <div class="collapse navbar-collapse" id="menuMovil">
                 <div class="d-flex flex-column gap-2 mt-3">
                     <a href="dashboard.php" class="item">Panel Principal</a>
-                    <a href="gestion_academica.php" class="item">Gestión Academica</a>
+                    <a href="carga_academica.php" class="item">Carga Academica</a>
                 </div>
             </div>
         </div>
@@ -98,7 +98,7 @@ $sql_materias = "SELECT h.id_horario, h.id_grupo, m.nombre_materia AS materia, p
 
     <main class="main_contenido p-4 w-100">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 style="color: #800020; font-weight: bold;">Gestión Académica</h1>
+            <h1 style="color: #800020; font-weight: bold;">Carga Académica</h1>
         </div>
 
         <div class="card shadow-sm border-0 mb-4">
