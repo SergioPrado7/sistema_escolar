@@ -87,15 +87,6 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
 </head>
 <body class="bg-light">
 
-    <nav class="navbar navbar-dark bg-vino d-md-none p-3 w-100">
-        <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuMovil">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <span class="text-white fw-bold">Gestión Académica</span>
-        </div>
-    </nav>
-
     <div class="container-fluid p-0 d-flex flex-column flex-md-row">
         
         <nav class="sidebar d-none d-md-flex flex-column p-3 bg-vino min-vh-100" style="width: 250px;">
@@ -107,6 +98,25 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                 <a href="gestion_usuarios.php" class="btn btn-outline-light text-start border-0"><i class="bi bi-people me-2"></i>Usuarios</a>
                 <a href="gestion_academica.php" class="btn btn-light text-vino text-start fw-bold"><i class="bi bi-journal-bookmark me-2"></i>Academia</a>
                 </div>
+        </nav>
+
+        <nav class="navbar navbar-dark d-md-none p-3 w-100" style="background-color: var(--rojo-vino) !important; z-index: 1000;">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuMovil">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <span class="text-white fw-bold">Gestión de Usuarios</span>
+                <div class="collapse navbar-collapse" id="menuMovil">
+                    <div class="d-flex flex-column gap-2 mt-3">
+                        <a href="dashboard.php" class="item">Panel Principal</a>
+                        <a href="gestion_usuarios.php" class="item active">Gestión Usuarios</a>
+                        <a href="#" class="item active">Calificaciones</a>
+                        <a href="finanzas.php" class="item active">Finanzas y Pagos</a>
+                        <a href="gestion_academica.php" class="item active">Gestión Académica</a>
+                        <a href="servicio_social.php" class="item active">Servicio Social</a>
+                    </div>
+                </div>
+            </div>
         </nav>
 
         <main class="flex-grow-1 p-3 p-md-4">
