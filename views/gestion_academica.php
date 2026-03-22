@@ -101,7 +101,7 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
         <div class="menu_links">
             <a href="dashboard.php" class="item">Panel Principal</a>
             <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
-            <a href="#" class="item">Calificaciones</a>
+            <a href="calificaciones.php" class="item">Calificaciones</a>
             <a href="finanzas.php" class="item">Finanzas y Pagos</a>
             <a href="gestion_academica.php" class="item active">Gestión Academica</a>
             <a href="servicio_social.php" class="item">Servicio Social</a>
@@ -118,7 +118,7 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                 <div class="d-flex flex-column gap-2 mt-3">
                     <a href="dashboard.php" class="item">Panel Principal</a>
                     <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
-                    <a href="#" class="item">Calificaciones</a>
+                    <a href="calificaciones.php" class="item">Calificaciones</a>
                     <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                     <a href="gestion_academica.php" class="item active">Gestión Academica</a>
                     <a href="servicio_social.php" class="item">Servicio Social</a>

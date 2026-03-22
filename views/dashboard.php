@@ -33,7 +33,7 @@ if (!isset($_SESSION['rol'])) {
                 <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                 <?php endif; ?>
                 
-                <a href="#" class="item">Calificaciones</a>
+                <a href="calificaciones.php" class="item">Calificaciones</a>
                 
                 <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                 <a href="finanzas.php" class="item">Finanzas y Pagos</a>
@@ -64,7 +64,7 @@ if (!isset($_SESSION['rol'])) {
                         <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                         <?php endif; ?>
                         
-                        <a href="#" class="item">Calificaciones</a>
+                        <a href="calificaciones.php" class="item">Calificaciones</a>
                         
                         <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                         <a href="finanzas.php" class="item">Finanzas y Pagos</a>
