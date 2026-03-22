@@ -89,6 +89,9 @@ $filtro_estatus = $_GET['estatus_filter'] ?? '';
             <a href="gestion_academica.php" class="item">Gestión Academica</a>
             <?php endif; ?>
             <a href="servicio_social.php" class="item active">Servicio Social</a>
+            <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Alumno'): ?>
+            <a href="kardex.php" class="item active">Kardex</a>
+            <?php endif; ?>
         </div>
     </nav>
 
@@ -110,6 +113,9 @@ $filtro_estatus = $_GET['estatus_filter'] ?? '';
                     <a href="gestion_academica.php" class="item">Gestión Academica</a>
                     <?php endif; ?>
                     <a href="servicio_social.php" class="item active">Servicio Social</a>
+                    <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Alumno'): ?>
+                    <a href="kardex.php" class="item active">Kardex</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

@@ -31,7 +31,7 @@ $materias_disponibles = [];
 if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
     $matricula = trim($_GET['matricula']);
     
-    // 1. Buscamos a Kevin (o al alumno que pongan)
+    // 1. Buscamos al alumno
     $stmt = $db->prepare("SELECT u.id_usuario, u.matricula, p.nombre, p.apellido_paterno 
                           FROM usuarios u 
                           INNER JOIN personas p ON u.id_usuario = p.id_usuario 
@@ -55,13 +55,14 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
         $stmt_inscritas->execute([':id_alumno' => $id_alumno]);
         $materias_inscritas = $stmt_inscritas->fetchAll(PDO::FETCH_ASSOC);
 
-        // 3. Traemos las clases disponibles para el modal de asignar
+        // 3. Traemos las clases disponibles para el modal de asignar (SOLO LAS NO FINALIZADAS)
         $query_disponibles = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno as profe_apellido 
                               FROM horarios h 
                               INNER JOIN materias m ON h.id_materia = m.id_materia 
                               INNER JOIN usuarios u_profe ON h.id_profesor = u_profe.id_usuario 
                               INNER JOIN personas p ON u_profe.id_usuario = p.id_usuario 
-                              INNER JOIN grupos g ON h.id_grupo = g.id_grupo";
+                              INNER JOIN grupos g ON h.id_grupo = g.id_grupo
+                              WHERE IFNULL((SELECT MAX(finalizado) FROM carga_academica WHERE id_horario = h.id_horario), 0) = 0";
         $materias_disponibles = $db->query($query_disponibles)->fetchAll(PDO::FETCH_ASSOC);
     }
 }
@@ -76,6 +77,7 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../styles/estilo.css">
+    <link rel="icon" type="image/x-icon" href="../assets/iconos/gestionIcono.ico">
     <style>
         /* Estilos específicos para las pestañas (Tabs) adaptados a tu tema */
         .nav-tabs .nav-link.active { 
@@ -103,7 +105,7 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
             <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
             <a href="calificaciones.php" class="item">Calificaciones</a>
             <a href="finanzas.php" class="item">Finanzas y Pagos</a>
-            <a href="gestion_academica.php" class="item active">Gestión Academica</a>
+            <a href="gestion_academica.php" class="item active">Gestión Académica</a>
             <a href="servicio_social.php" class="item">Servicio Social</a>
         </div>
     </nav>
@@ -120,7 +122,7 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                     <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                     <a href="calificaciones.php" class="item">Calificaciones</a>
                     <a href="finanzas.php" class="item">Finanzas y Pagos</a>
-                    <a href="gestion_academica.php" class="item active">Gestión Academica</a>
+                    <a href="gestion_academica.php" class="item active">Gestión Académica</a>
                     <a href="servicio_social.php" class="item">Servicio Social</a>
                 </div>
             </div>
@@ -131,7 +133,7 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
         <div class="p-4">
             
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 style="color: var(--rojo-vino); font-weight: bold;">Gestión Académica</h1>
+                <h1 style="color: var(--rojo-vino); font-weight: bold;">Centro de Operaciones Académicas</h1>
             </div>
 
             <div class="card shadow-sm border-0 mb-4">
