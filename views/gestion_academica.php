@@ -13,7 +13,8 @@ $db = $conexion->getConnection();
 
 // Traemos los catálogos básicos para llenar las tablas y selects
 $periodos = $db->query("SELECT * FROM periodos ORDER BY id_periodo DESC")->fetchAll(PDO::FETCH_ASSOC);
-$materias = $db->query("SELECT * FROM materias")->fetchAll(PDO::FETCH_ASSOC);
+$carreras = $db->query("SELECT * FROM carreras")->fetchAll(PDO::FETCH_ASSOC); 
+$materias = $db->query("SELECT m.*, c.nombre_carrera FROM materias m LEFT JOIN carreras c ON m.id_carrera = c.id_carrera")->fetchAll(PDO::FETCH_ASSOC);
 $profesores = $db->query("SELECT u.id_usuario, p.nombre, p.apellido_paterno FROM usuarios u INNER JOIN personas p ON u.id_usuario = p.id_usuario WHERE u.rol = 'Profesor'")->fetchAll(PDO::FETCH_ASSOC);
 
 $horarios_activos = $db->query("SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, per.nombre_periodo, h.cupo_maximo, h.hora_inicio, h.hora_fin 
@@ -256,18 +257,69 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                                                 <td class="fw-bold"><?php echo htmlspecialchars($horario['nombre_materia']); ?></td>
                                                 <td><?php echo htmlspecialchars($horario['nombre_grupo']); ?></td>
                                                 <td><?php echo htmlspecialchars($horario['profe_nombre'] . ' ' . $horario['apellido_paterno']); ?></td>
-                                                <td class="text-muted">
-                                                    <i class="bi bi-clock me-1"></i> 
-                                                    <?php echo htmlspecialchars(substr($horario['hora_inicio'], 0, 5) . ' - ' . substr($horario['hora_fin'], 0, 5)); ?>
-                                                </td>
-                                                <td><strong><?php echo htmlspecialchars($horario['cupo_maximo'] ?? '30'); ?></strong></td>
                                                 <td>
-                                                    <a href="../controllers/eliminar_horario.php?id=<?php echo $horario['id_horario']; ?>" class="btn btn-sm btn-outline-danger shadow-sm" onclick="return confirm('¿Seguro que deseas eliminar este grupo?');"><i class="bi bi-trash"></i></a>
+                                                    <i class="bi bi-clock"></i> 
+                                                    <?php echo htmlspecialchars(substr($horario['hora_inicio'], 0, 5) . ' a ' . substr($horario['hora_fin'], 0, 5)); ?>
+                                                </td>
+                                                <td><?php echo htmlspecialchars($horario['cupo_maximo'] ?? '30'); ?></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalEditarHorario<?php echo $horario['id_horario']; ?>"><i class="bi bi-pencil"></i></button>
+                                                    <a href="../controllers/eliminar_horario.php?id=<?php echo $horario['id_horario']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Seguro que deseas eliminar este grupo?');"><i class="bi bi-trash"></i></a>
                                                 </td>
                                             </tr>
+
+                                            <div class="modal fade" id="modalEditarHorario<?php echo $horario['id_horario']; ?>" tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header bg-warning text-dark">
+                                                            <h5 class="modal-title">Modificar Grupo: <?php echo htmlspecialchars($horario['nombre_grupo']); ?></h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <form action="../controllers/editar_horario.php" method="POST">
+                                                            <div class="modal-body">
+                                                                <input type="hidden" name="id_horario" value="<?php echo $horario['id_horario']; ?>">
+                                                                
+                                                                <div class="mb-3">
+                                                                    <label class="fw-bold">Materia (No editable)</label>
+                                                                    <input type="text" class="form-control" value="<?php echo htmlspecialchars($horario['nombre_materia']); ?>" disabled>
+                                                                </div>
+                                                                
+                                                                <div class="mb-3">
+                                                                    <label class="fw-bold">Cambiar Profesor</label>
+                                                                    <select name="id_profesor" class="form-select" required>
+                                                                        <?php foreach($profesores as $profe): ?>
+                                                                            <?php $seleccionado = (trim($horario['profe_nombre']) == trim($profe['nombre'])) ? 'selected' : ''; ?>
+                                                                            <option value="<?php echo $profe['id_usuario']; ?>" <?php echo $seleccionado; ?>>
+                                                                                <?php echo htmlspecialchars($profe['nombre'] . ' ' . $profe['apellido_paterno']); ?>
+                                                                            </option>
+                                                                        <?php endforeach; ?>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-4 mb-3">
+                                                                        <label class="fw-bold">Hora Inicio</label>
+                                                                        <input type="time" name="hora_inicio" class="form-control" value="<?php echo htmlspecialchars($horario['hora_inicio']); ?>" required>
+                                                                    </div>
+                                                                    <div class="col-4 mb-3">
+                                                                        <label class="fw-bold">Hora Fin</label>
+                                                                        <input type="time" name="hora_fin" class="form-control" value="<?php echo htmlspecialchars($horario['hora_fin']); ?>" required>
+                                                                    </div>
+                                                                    <div class="col-4 mb-3">
+                                                                        <label class="fw-bold">Cupo</label>
+                                                                        <input type="number" name="cupo_maximo" class="form-control" value="<?php echo htmlspecialchars($horario['cupo_maximo']); ?>" required>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="submit" class="btn btn-warning">Actualizar Grupo</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <?php endforeach; ?>
                                         <?php else: ?>
-                                            <tr><td colspan="7" class="text-center text-muted py-5"><i class="bi bi-calendar-x fs-2 d-block mb-2"></i>Aún no hay grupos configurados.</td></tr>
+                                            <tr><td colspan="7" class="text-center text-muted">Aún no hay grupos configurados.</td></tr>
                                         <?php endif; ?>
                                     </tbody>
                                 </table>
@@ -285,27 +337,75 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                                         <tr>
                                             <th>Clave</th>
                                             <th>Materia</th>
+                                            <th>Carrera</th>
                                             <th>Créditos</th>
                                             <th>Semestre</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php if(count($materias) > 0): ?>
-                                            <?php foreach($materias as $mat): ?>
-                                            <tr>
-                                                <td class="fw-bold text-muted"><?php echo htmlspecialchars($mat['clave_materia']); ?></td>
-                                                <td class="fw-bold"><?php echo htmlspecialchars($mat['nombre_materia']); ?></td>
-                                                <td><?php echo htmlspecialchars($mat['creditos']); ?> cr</td>
-                                                <td>Semestre <?php echo htmlspecialchars($mat['semestre_sugerido']); ?></td> 
-                                                <td>
-                                                    <a href="../controllers/eliminar_materia.php?id=<?php echo $mat['id_materia']; ?>" class="btn btn-sm btn-outline-danger shadow-sm" onclick="return confirm('¿Seguro que deseas eliminar esta materia del catálogo?');"><i class="bi bi-trash"></i></a>
-                                                </td>
-                                            </tr>
-                                            <?php endforeach; ?>
-                                        <?php else: ?>
-                                            <tr><td colspan="5" class="text-center text-muted py-5">No hay materias registradas en el sistema.</td></tr>
-                                        <?php endif; ?>
+                                        <?php foreach($materias as $mat): ?>
+                                        <tr>
+                                            <td class="fw-bold"><?php echo htmlspecialchars($mat['clave_materia'] ?? 'S/C'); ?></td>
+                                            <td><?php echo htmlspecialchars($mat['nombre_materia']); ?></td>
+                                            <td><span class="badge bg-info text-dark"><?php echo htmlspecialchars($mat['nombre_carrera'] ?? 'Tronco Común'); ?></span></td>
+                                            <td><?php echo htmlspecialchars($mat['creditos']); ?> cr</td>
+                                            <td>Semestre <?php echo htmlspecialchars($mat['semestre_sugerido']); ?></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalEditarMateria<?php echo $mat['id_materia']; ?>"><i class="bi bi-pencil"></i></button>
+                                                <a href="../controllers/eliminar_materia.php?id=<?php echo $mat['id_materia']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Seguro que deseas eliminar esta materia?');"><i class="bi bi-trash"></i></a>
+                                            </td>
+                                        </tr>
+
+                                        <div class="modal fade" id="modalEditarMateria<?php echo $mat['id_materia']; ?>" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-warning text-dark">
+                                                        <h5 class="modal-title">Editar Materia</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <form action="../controllers/editar_materia.php" method="POST">
+                                                        <div class="modal-body">
+                                                            <input type="hidden" name="id_materia" value="<?php echo $mat['id_materia']; ?>">
+                                                            
+                                                            <div class="mb-3">
+                                                                <label class="fw-bold">Clave de la Materia</label>
+                                                                <input type="text" name="clave_materia" class="form-control" value="<?php echo htmlspecialchars($mat['clave_materia'] ?? ''); ?>" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="fw-bold">Nombre de la Materia</label>
+                                                                <input type="text" name="nombre_materia" class="form-control" value="<?php echo htmlspecialchars($mat['nombre_materia']); ?>" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="fw-bold">Carrera</label>
+                                                                <select name="id_carrera" class="form-select">
+                                                                    <option value="">-- Tronco Común / Sin Asignar --</option>
+                                                                    <?php foreach($carreras as $car): ?>
+                                                                        <option value="<?php echo $car['id_carrera']; ?>" <?php echo ($car['id_carrera'] == $mat['id_carrera']) ? 'selected' : ''; ?>>
+                                                                            <?php echo htmlspecialchars($car['nombre_carrera']); ?>
+                                                                        </option>
+                                                                    <?php endforeach; ?>
+                                                                </select>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-6 mb-3">
+                                                                    <label class="fw-bold">Créditos</label>
+                                                                    <input type="number" name="creditos" class="form-control" value="<?php echo htmlspecialchars($mat['creditos']); ?>" required>
+                                                                </div>
+                                                                <div class="col-6 mb-3">
+                                                                            <label class="fw-bold">Semestre Sugerido</label>
+                                                                            <input type="number" name="semestre" class="form-control" value="<?php echo htmlspecialchars($mat['semestre_sugerido']); ?>" required>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php endforeach; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -398,26 +498,38 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="../controllers/guardar_materia.php" method="POST">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Clave (Ej. ISC-101)</label>
-                        <input type="text" name="clave" class="form-control" required>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Clave (Ej. ISC-101)</label>
+                    <input type="text" name="clave_materia" class="form-control" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nombre de la Materia</label>
+                    <input type="text" name="nombre_materia" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="fw-bold">Carrera</label>
+                    <select name="id_carrera" class="form-select">
+                        <option value="">-- Tronco Común / Sin Asignar --</option>
+                        <?php foreach($carreras as $car): ?>
+                            <option value="<?php echo $car['id_carrera']; ?>"><?php echo htmlspecialchars($car['nombre_carrera']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label fw-bold">Créditos</label>
+                        <input type="number" name="creditos" class="form-control" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Nombre de la Materia</label>
-                        <input type="text" name="nombre" class="form-control" required>
-                    </div>
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <label class="form-label fw-bold">Créditos</label>
-                            <input type="number" name="creditos" class="form-control" required>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <label class="form-label fw-bold">Semestre Sugerido</label>
-                            <input type="number" name="semestre" class="form-control" required>
-                        </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label fw-bold">Semestre Sugerido</label>
+                        <input type="number" name="semestre" class="form-control" required>
                     </div>
                 </div>
+            </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn text-white" style="background-color: var(--rojo-vino);">Guardar Materia</button>
