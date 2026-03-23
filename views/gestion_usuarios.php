@@ -88,6 +88,8 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php if ($_SESSION['rol'] == 'Administrador'): ?>
                 <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                 <?php endif; ?>
+
+                <a href = "horarios.php" class="item">Horarios</a>
                 
                 <a href="calificaciones.php" class="item">Calificaciones</a>
                 
@@ -116,6 +118,7 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="d-flex flex-column gap-2 mt-3">
                     <a href="dashboard.php" class="item">Panel Principal</a>
                     <a href="gestion_usuarios.php" class="item active">Gestión Usuarios</a>
+                    <a href = "horarios.php" class="item">Horarios</a>
                     <a href="calificaciones.php" class="item active">Calificaciones</a>
                     <a href="finanzas.php" class="item active">Finanzas y Pagos</a>
                     <a href="gestion_academica.php" class="item active">Gestión Académica</a>
