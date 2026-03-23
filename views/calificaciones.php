@@ -130,6 +130,7 @@ if ($rol_actual == 'Alumno') {
     <title>Calificaciones - Tec San Pedro</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="icon" type="image/x-icon" href="../assets/iconos/calificacionesIcono.ico">
     <link rel="stylesheet" href="../styles/estilo.css">
     <style>
         .input-unidad { width: 55px; text-align: center; padding: 4px; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; }
@@ -149,6 +150,7 @@ if ($rol_actual == 'Alumno') {
         <div class="menu_links">
             <a href="dashboard.php" class="item">Panel Principal</a>
             <?php if ($_SESSION['rol'] == 'Administrador'): ?><a href="gestion_usuarios.php" class="item">Gestión Usuarios</a><?php endif; ?>
+            <a href="horarios.php" class="item">Horarios</a>
             <a href="calificaciones.php" class="item active">Calificaciones</a>
             <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?><a href="finanzas.php" class="item">Finanzas y Pagos</a><?php endif; ?>
             <?php if ($_SESSION['rol'] == 'Administrador'): ?><a href="gestion_academica.php" class="item">Carga Académica</a><?php endif; ?>
@@ -164,8 +166,12 @@ if ($rol_actual == 'Alumno') {
             <div class="collapse navbar-collapse" id="menuMovil">
                 <div class="d-flex flex-column gap-2 mt-3">
                     <a href="dashboard.php" class="item">Panel Principal</a>
+                    <?php if ($_SESSION['rol'] == 'Administrador'): ?>
+                    <a href="gestion_usuarios.php" class="item">Gestión de Usuarios</a>
+                    <?php endif; ?>
+                    <a href="horarios.php" class="item">Horarios</a>
                     <a href="calificaciones.php" class="item active">Calificaciones</a>
-                    <?php if ($_SESSION['rol'] == 'Alumno'): ?>
+                    <?php if ($_SESSION['rol'] == 'Alumno' || $_SESSION['rol'] == 'Administrador'): ?>
                     <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                     <a href="servicio_social.php" class="item">Servicio Social</a>
                     <?php endif; ?>

@@ -105,6 +105,7 @@ $res_carreras = $conexion->query($sql_carreras);
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
             <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
             <?php endif; ?>
+            <a href="horarios.php" class="item">Horarios</a>
             <a href="calificaciones.php" class="item">Calificaciones</a>
             <a href="finanzas.php" class="item active">Finanzas y Pagos</a>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
@@ -129,6 +130,7 @@ $res_carreras = $conexion->query($sql_carreras);
                     <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>
                     <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                     <?php endif; ?>
+                    <a href="horarios.php" class="item">Horarios</a>
                     <a href="calificaciones.php" class="item">Calificaciones</a>
                     <a href="finanzas.php" class="item active">Finanzas y Pagos</a>
                     <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 'Administrador'): ?>

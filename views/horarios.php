@@ -77,6 +77,7 @@ try {
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="icon" type="image/x-icon" href="../assets/iconos/horarioIcono.ico">
     <link rel="stylesheet" href="../styles/estilo.css">
     
     <style>
@@ -107,7 +108,7 @@ try {
                 <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                 <?php endif; ?>
                 <a href="calificaciones.php" class="item">Calificaciones</a>
-                <a href="horarios.php" class="item active">Mi Horario</a> <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
+                <a href="horarios.php" class="item active">Horarios</a> <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                 <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                 <?php endif; ?>
                 <?php if ($_SESSION['rol'] == 'Administrador'): ?>
@@ -132,7 +133,7 @@ try {
                         <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                         <?php endif; ?>
                         <a href="calificaciones.php" class="item">Calificaciones</a>
-                        <a href="horarios.php" class="item active">Mi Horario</a> <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
+                        <a href="horarios.php" class="item active">Horarios</a> <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                         <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                         <?php endif; ?>
                         <?php if ($_SESSION['rol'] == 'Administrador'): ?>
