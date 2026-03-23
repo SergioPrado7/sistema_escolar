@@ -1,5 +1,4 @@
 <?php
-// Mantén tu lógica PHP igual arriba...
 session_start();
 $host = "nue.domcloud.co"; 
 $user = "sitiosergio";

@@ -2,7 +2,6 @@
 session_start();
 require_once '../config/database.php';
 
-// Solo Profesores y Administradores pueden ver este historial de evaluaciones
 if (!isset($_SESSION['rol']) || !in_array($_SESSION['rol'], ['Profesor', 'Administrador'])) {
     header("Location: dashboard.php");
     exit();
@@ -18,7 +17,6 @@ $db = $conexion->getConnection();
 $rol_actual = $_SESSION['rol'];
 $id_horario = $_GET['horario'];
 
-// 1. OBTENER INFORMACIÓN DEL GRUPO
 $query_grupo = "SELECT h.id_horario, m.nombre_materia, m.clave_materia, g.nombre_grupo, per.nombre_periodo 
                 FROM horarios h 
                 JOIN materias m ON h.id_materia = m.id_materia 
@@ -33,7 +31,6 @@ if (!$info_grupo) {
     die("Error: El grupo solicitado no existe.");
 }
 
-// 2. OBTENER CALIFICACIONES DE LOS ALUMNOS
 $query_alumnos = "SELECT ca.*, u.matricula, p.nombre, p.apellido_paterno 
                   FROM carga_academica ca 
                   JOIN usuarios u ON ca.id_alumno = u.id_usuario 
