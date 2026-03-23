@@ -111,6 +111,14 @@ if ($rol_actual == 'Profesor') {
 
                 <?php if ($rol_actual == 'Administrador'): ?>
                     <div class="row g-4 justify-content-center">
+                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                            <a href="horarios.php" class="text-decoration-none">
+                                <div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino">
+                                    <i class="bi bi-calendar3 icono-gigante"></i>
+                                    <h5 class="fw-bold text-dark mt-2 mb-0">Horarios</h5>
+                                </div>
+                            </a>
+                        </div>
                         <div class="col-12 col-sm-6 col-lg-4 col-xl-3"><a href="gestion_usuarios.php" class="text-decoration-none"><div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-people-fill icono-gigante"></i><h5 class="fw-bold text-dark mt-2 mb-0">Gestión Usuarios</h5></div></a></div>
                         <div class="col-12 col-sm-6 col-lg-4 col-xl-3"><a href="gestion_academica.php" class="text-decoration-none"><div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-journal-bookmark-fill icono-gigante"></i><h5 class="fw-bold text-dark mt-2 mb-0">Gestión Académica</h5></div></a></div>
                         <div class="col-12 col-sm-6 col-lg-4 col-xl-3"><a href="calificaciones.php" class="text-decoration-none"><div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-award-fill icono-gigante"></i><h5 class="fw-bold text-dark mt-2 mb-0">Calificaciones</h5></div></a></div>
@@ -122,7 +130,10 @@ if ($rol_actual == 'Profesor') {
                     
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 max-w-1200 mx-auto">
                         <h4 class="fw-bold mb-3 mb-md-0 text-dark">Mis Grupos Activos</h4>
-                        <a href="kardex.php" class="btn btn-outline-secondary fw-bold shadow-sm"><i class="bi bi-archive-fill me-2"></i>Historial de Cursos (Actas)</a>
+                        <div>
+                         <a href="kardex.php" class="btn btn-outline-secondary fw-bold shadow-sm"><i class="bi bi-archive-fill me-2"></i>Historial de Cursos (Actas)</a>
+                         <a href="horarios.php" class="btn text-white fw-bold shadow-sm ms-0 ms-md-2" style="background-color: var(--rojo-vino);"><i class="bi bi-calendar3 me-2"></i>Mi Horario</a>
+                        </div>
                     </div>
 
                     <div class="row g-4 justify-content-center max-w-1200 mx-auto">
@@ -151,6 +162,14 @@ if ($rol_actual == 'Profesor') {
                 <?php elseif ($rol_actual == 'Alumno'): ?>
                     
                     <div class="row g-4 justify-content-center mb-5">
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <a href="horarios.php" class="text-decoration-none">
+                                <div class="card shadow-sm border-0 text-center p-3 tarjeta-hover" style="border-top: 4px solid var(--rojo-vino);">
+                                    <i class="bi bi-calendar3 fs-1" style="color: var(--rojo-vino);"></i>
+                                    <h6 class="fw-bold text-dark mt-2 mb-0">Mi Horario</h6>
+                                </div>
+                            </a>
+                        </div>
                         <div class="col-12 col-sm-6 col-lg-3">
                             <a href="calificaciones.php" class="text-decoration-none"><div class="card shadow-sm border-0 text-center p-3 tarjeta-hover" style="border-top: 4px solid var(--rojo-vino);"><i class="bi bi-journal-text fs-1" style="color: var(--rojo-vino);"></i><h6 class="fw-bold text-dark mt-2 mb-0">Mi Boleta</h6></div></a>
                         </div>
