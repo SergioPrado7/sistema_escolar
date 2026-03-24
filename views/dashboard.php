@@ -96,6 +96,8 @@ if ($rol_actual == 'Profesor') {
                         <i class="bi bi-person-circle fs-3 text-secondary"></i>
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2">
+                        <li><a class="dropdown-item fw-bold text-dark" href="perfil.php"><i class="bi bi-person-lines-fill me-2"></i> Mi Perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger fw-bold" href="../controllers/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión</a></li>
                     </ul>
                 </div>
