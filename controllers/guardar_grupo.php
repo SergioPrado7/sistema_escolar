@@ -7,6 +7,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id_materia = $_POST['id_materia'];
     $id_profesor = $_POST['id_profesor'];
     $nombre_grupo = trim(strtoupper($_POST['nombre_grupo'])); 
+    
+    // AQUÍ ATRAPAMOS EL DÍA NUEVO
+    $dia_semana = $_POST['dia_semana']; 
+    
     $hora_inicio = $_POST['hora_inicio'];
     $hora_fin = $_POST['hora_fin'];
     $cupo_maximo = $_POST['cupo_maximo'];
@@ -15,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $db = $conexion->getConnection();
 
     try {
-        // 1. Guardamos el Grupo
+        // 1. Guardamos el Grupo (El grupo no lleva día, solo las horas, eso está bien)
         $stmt_grupo = $db->prepare("SELECT id_grupo FROM grupos WHERE nombre_grupo = :nombre AND id_materia = :id_materia AND id_profesor = :id_profesor AND id_periodo = :id_periodo");
         $stmt_grupo->execute([
             ':nombre' => $nombre_grupo,
@@ -38,9 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $id_grupo = $db->lastInsertId(); 
         }
 
-        // 2. Guardamos el Horario (¡AHORA SÍ CON LAS HORAS INCLUIDAS!)
-        $query_horario = "INSERT INTO horarios (id_materia, id_profesor, id_grupo, id_periodo, cupo_maximo, hora_inicio, hora_fin) 
-                          VALUES (:id_materia, :id_profesor, :id_grupo, :id_periodo, :cupo_maximo, :hora_inicio, :hora_fin)";
+        // 2. Guardamos el Horario (¡AHORA SÍ CON EL DÍA DE LA SEMANA INCLUIDO!)
+        $query_horario = "INSERT INTO horarios (id_materia, id_profesor, id_grupo, id_periodo, cupo_maximo, dia_semana, hora_inicio, hora_fin) 
+                          VALUES (:id_materia, :id_profesor, :id_grupo, :id_periodo, :cupo_maximo, :dia_semana, :hora_inicio, :hora_fin)";
         $stmt_horario = $db->prepare($query_horario);
         
         $stmt_horario->execute([
@@ -49,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ':id_grupo' => $id_grupo,
             ':id_periodo' => $id_periodo,
             ':cupo_maximo' => $cupo_maximo,
+            ':dia_semana' => $dia_semana, // Se manda a la base de datos
             ':hora_inicio' => $hora_inicio,
             ':hora_fin' => $hora_fin
         ]);

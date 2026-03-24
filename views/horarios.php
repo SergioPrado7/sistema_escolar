@@ -14,28 +14,58 @@ $rol_actual = $_SESSION['rol'];
 $id_usuario_actual = $_SESSION['id_usuario'];
 
 $mi_horario = [];
+$alumno_info = null;
 
 // ==============================================================
 // LÓGICA DE HORARIOS SEGÚN EL ROL
 // ==============================================================
 try {
     if ($rol_actual == 'Administrador') {
-        $query = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
-                         h.hora_inicio, h.hora_fin, per.nombre_periodo, h.cupo_maximo
-                  FROM horarios h 
-                  JOIN materias m ON h.id_materia = m.id_materia 
-                  JOIN grupos g ON h.id_grupo = g.id_grupo 
-                  JOIN usuarios u ON h.id_profesor = u.id_usuario 
-                  JOIN personas p ON u.id_usuario = p.id_usuario 
-                  LEFT JOIN periodos per ON h.id_periodo = per.id_periodo
-                  ORDER BY h.hora_inicio ASC";
-        $stmt = $db->prepare($query);
-        $stmt->execute();
-        $mi_horario = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Si el administrador buscó una matrícula
+        if (isset($_GET['matricula']) && !empty(trim($_GET['matricula']))) {
+            $matricula_buscada = trim($_GET['matricula']);
+            
+            // Traemos el horario de ESE alumno en específico
+            $query = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
+                             h.hora_inicio, h.hora_fin, h.dia_semana, per.nombre_periodo, h.cupo_maximo
+                      FROM carga_academica ca 
+                      JOIN horarios h ON ca.id_horario = h.id_horario 
+                      JOIN materias m ON h.id_materia = m.id_materia 
+                      JOIN grupos g ON h.id_grupo = g.id_grupo 
+                      JOIN usuarios u_alumno ON ca.id_alumno = u_alumno.id_usuario
+                      JOIN usuarios u_profe ON h.id_profesor = u_profe.id_usuario 
+                      JOIN personas p ON u_profe.id_usuario = p.id_usuario 
+                      LEFT JOIN periodos per ON h.id_periodo = per.id_periodo
+                      WHERE u_alumno.matricula = :matricula
+                      ORDER BY h.hora_inicio ASC";
+            $stmt = $db->prepare($query);
+            $stmt->execute([':matricula' => $matricula_buscada]);
+            $mi_horario = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Traemos el nombre del alumno para mostrarlo bonito
+            $stmt_alumno = $db->prepare("SELECT p.nombre, p.apellido_paterno FROM usuarios u JOIN personas p ON u.id_usuario = p.id_usuario WHERE u.matricula = :matricula");
+            $stmt_alumno->execute([':matricula' => $matricula_buscada]);
+            $alumno_info = $stmt_alumno->fetch(PDO::FETCH_ASSOC);
+            
+        } else {
+            // Si no ha buscado nada, mostramos el Horario Maestro general
+            $query = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
+                             h.hora_inicio, h.hora_fin, h.dia_semana, per.nombre_periodo, h.cupo_maximo
+                      FROM horarios h 
+                      JOIN materias m ON h.id_materia = m.id_materia 
+                      JOIN grupos g ON h.id_grupo = g.id_grupo 
+                      JOIN usuarios u ON h.id_profesor = u.id_usuario 
+                      JOIN personas p ON u.id_usuario = p.id_usuario 
+                      LEFT JOIN periodos per ON h.id_periodo = per.id_periodo
+                      ORDER BY h.hora_inicio ASC";
+            $stmt = $db->prepare($query);
+            $stmt->execute();
+            $mi_horario = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
 
     } elseif ($rol_actual == 'Profesor') {
         $query = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
-                         h.hora_inicio, h.hora_fin, per.nombre_periodo, h.cupo_maximo
+                         h.hora_inicio, h.hora_fin, h.dia_semana, per.nombre_periodo, h.cupo_maximo
                   FROM horarios h 
                   JOIN materias m ON h.id_materia = m.id_materia 
                   JOIN grupos g ON h.id_grupo = g.id_grupo 
@@ -50,7 +80,7 @@ try {
 
     } elseif ($rol_actual == 'Alumno') {
         $query = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
-                         h.hora_inicio, h.hora_fin, per.nombre_periodo, h.cupo_maximo
+                         h.hora_inicio, h.hora_fin, h.dia_semana, per.nombre_periodo, h.cupo_maximo
                   FROM carga_academica ca 
                   JOIN horarios h ON ca.id_horario = h.id_horario 
                   JOIN materias m ON h.id_materia = m.id_materia 
@@ -91,6 +121,7 @@ try {
             .card { box-shadow: none !important; border: 1px solid #ccc !important; }
             table { border-collapse: collapse !important; width: 100% !important; }
             th, td { border: 1px solid #000 !important; color: #000 !important; }
+            .bg-vino { background-color: #ddd !important; color: #000 !important; }
         }
     </style>
 </head>
@@ -108,7 +139,8 @@ try {
                 <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                 <?php endif; ?>
                 <a href="calificaciones.php" class="item">Calificaciones</a>
-                <a href="horarios.php" class="item active">Horarios</a> <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
+                <a href="horarios.php" class="item active">Horarios</a> 
+                <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                 <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                 <?php endif; ?>
                 <?php if ($_SESSION['rol'] == 'Administrador'): ?>
@@ -133,7 +165,8 @@ try {
                         <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                         <?php endif; ?>
                         <a href="calificaciones.php" class="item">Calificaciones</a>
-                        <a href="horarios.php" class="item active">Horarios</a> <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
+                        <a href="horarios.php" class="item active">Horarios</a> 
+                        <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                         <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                         <?php endif; ?>
                         <?php if ($_SESSION['rol'] == 'Administrador'): ?>
@@ -175,47 +208,119 @@ try {
                     </button>
                 </div>
 
+                <?php if ($rol_actual == 'Administrador'): ?>
+                <form action="" method="GET" class="mb-4 mt-2 no-imprimir">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-12 col-md-8 col-lg-6">
+                            <label class="form-label fw-bold text-muted small">Consultar horario por alumno:</label>
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                                <input type="text" name="matricula" class="form-control border-start-0" placeholder="Ej. 221000135" value="<?php echo isset($_GET['matricula']) ? htmlspecialchars($_GET['matricula']) : ''; ?>">
+                                <button type="submit" class="btn text-white px-4" style="background-color: var(--rojo-vino);">Buscar</button>
+                                <?php if(isset($_GET['matricula']) && !empty($_GET['matricula'])): ?>
+                                    <a href="horarios.php" class="btn btn-secondary">Limpiar</a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+                <?php if(isset($alumno_info) && $alumno_info): ?>
+                    <div class="alert shadow-sm border-0 d-flex align-items-center mb-4" style="background-color: #e9ecef; border-left: 5px solid var(--rojo-vino) !important;">
+                        <i class="bi bi-person-bounding-box fs-3 me-3" style="color: var(--rojo-vino);"></i>
+                        <div>
+                            <h6 class="mb-0 fw-bold">Mostrando el horario de:</h6>
+                            <span class="text-dark fs-5"><?php echo htmlspecialchars($alumno_info['nombre'] . ' ' . $alumno_info['apellido_paterno']); ?></span>
+                        </div>
+                    </div>
+                <?php elseif(isset($_GET['matricula']) && !empty($_GET['matricula']) && !$alumno_info): ?>
+                    <div class="alert alert-danger shadow-sm mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> No se encontró ningún alumno con esa matrícula o aún no tiene materias asignadas.
+                    </div>
+                <?php endif; ?>
+                <?php endif; ?>
                 <div class="card shadow-sm border-0 borde-vino">
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th class="px-4 py-3">Horario</th>
-                                        <th class="py-3">Materia</th>
-                                        <th class="py-3">Grupo</th>
-                                        <th class="py-3">Profesor</th>
-                                        <?php if($rol_actual == 'Administrador'): ?>
-                                            <th class="py-3">Periodo</th>
-                                        <?php endif; ?>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (count($mi_horario) > 0): ?>
-                                        <?php foreach ($mi_horario as $clase): ?>
+                            <?php 
+                            // 1. Definimos los días de la semana fijos para las columnas
+                            $dias_semana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+                            // 2. Extraemos las horas únicas para hacer las filas
+                            $horas_unicas = [];
+                            foreach ($mi_horario as $clase) {
+                                $rango = substr($clase['hora_inicio'], 0, 5) . ' - ' . substr($clase['hora_fin'], 0, 5);
+                                if (!in_array($rango, $horas_unicas)) {
+                                    $horas_unicas[] = $rango;
+                                }
+                            }
+                            // Ordenamos las horas de más temprano a más tarde
+                            sort($horas_unicas);
+                            ?>
+
+                            <?php if (count($mi_horario) > 0): ?>
+                                <table class="table table-bordered text-center align-middle mb-0 table-sm" style="min-width: 800px;">
+                                    <thead>
+                                        <tr class="text-white" style="background-color: var(--rojo-vino);">
+                                            <th class="py-3 bg-vino" style="width: 10%; background-color: var(--rojo-vino);">Hora</th>
+                                            <?php foreach($dias_semana as $dia): ?>
+                                                <th class="py-3 bg-vino" style="width: 15%; background-color: var(--rojo-vino);"><?php echo $dia; ?></th>
+                                            <?php endforeach; ?>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach($horas_unicas as $hora): ?>
                                             <tr>
-                                                <td class="px-4 fw-bold text-dark text-nowrap">
-                                                    <i class="bi bi-clock text-secondary me-1 no-imprimir"></i> 
-                                                    <?php echo htmlspecialchars(substr($clase['hora_inicio'], 0, 5) . ' - ' . substr($clase['hora_fin'], 0, 5)); ?>
+                                                <td class="fw-bold bg-light text-muted border-end" style="font-size: 0.9rem;">
+                                                    <i class="bi bi-clock me-1 no-imprimir"></i><br>
+                                                    <?php echo $hora; ?>
                                                 </td>
-                                                <td class="fw-bold" style="color: var(--rojo-vino);"><?php echo htmlspecialchars($clase['nombre_materia']); ?></td>
-                                                <td><span class="badge bg-secondary"><?php echo htmlspecialchars($clase['nombre_grupo']); ?></span></td>
-                                                <td><?php echo htmlspecialchars($clase['profe_nombre'] . ' ' . $clase['apellido_paterno']); ?></td>
-                                                <?php if($rol_actual == 'Administrador'): ?>
-                                                    <td><small class="text-muted"><?php echo htmlspecialchars($clase['nombre_periodo']); ?></small></td>
-                                                <?php endif; ?>
+
+                                                <?php foreach($dias_semana as $dia): 
+                                                    // Buscamos si hay una clase que coincida con esta HORA y este DÍA
+                                                    $clase_encontrada = null;
+                                                    foreach($mi_horario as $clase) {
+                                                        $rango_clase = substr($clase['hora_inicio'], 0, 5) . ' - ' . substr($clase['hora_fin'], 0, 5);
+                                                        if ($clase['dia_semana'] == $dia && $rango_clase == $hora) {
+                                                            $clase_encontrada = $clase;
+                                                            break; // Si la encontramos, dejamos de buscar
+                                                        }
+                                                    }
+                                                ?>
+                                                
+                                                <td class="p-2 border" style="height: 100px;">
+                                                    <?php if($clase_encontrada): ?>
+                                                        <div class="h-100 p-2 rounded shadow-sm text-white d-flex flex-column justify-content-center bg-vino" style="background-color: var(--rojo-vino); font-size: 0.8rem;">
+                                                            <strong class="text-uppercase mb-1" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+                                                                <?php echo htmlspecialchars($clase_encontrada['nombre_materia']); ?>
+                                                            </strong>
+                                                            <?php if ($rol_actual == 'Alumno' || $rol_actual == 'Administrador'): ?>
+                                                                <span class="mb-1"><i class="bi bi-person-video3"></i> <?php echo htmlspecialchars($clase_encontrada['profe_nombre']); ?></span>
+                                                            <?php endif; ?>
+                                                            <div>
+                                                                <span class="badge bg-light text-dark shadow-sm">Grupo <?php echo htmlspecialchars($clase_encontrada['nombre_grupo']); ?></span>
+                                                            </div>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <span class="text-muted opacity-25">-</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                
+                                                <?php endforeach; ?>
                                             </tr>
                                         <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            <?php else: ?>
+                                <div class="text-center py-5 text-muted border rounded bg-light m-3">
+                                    <i class="bi bi-calendar-x fs-1 d-block mb-3"></i>
+                                    <?php if(isset($_GET['matricula']) && !empty($_GET['matricula'])): ?>
+                                        Este alumno no tiene clases registradas.
                                     <?php else: ?>
-                                        <tr>
-                                            <td colspan="5" class="text-center py-5 text-muted">
-                                                <i class="bi bi-calendar-x fs-1 d-block mb-3"></i>
-                                                Aún no hay clases registradas en tu horario.
-                                            </td>
-                                        </tr>
+                                        Aún no hay clases registradas en el horario.
                                     <?php endif; ?>
-                                </tbody>
-                            </table>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

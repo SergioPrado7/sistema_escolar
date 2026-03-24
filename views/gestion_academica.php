@@ -17,7 +17,8 @@ $carreras = $db->query("SELECT * FROM carreras")->fetchAll(PDO::FETCH_ASSOC);
 $materias = $db->query("SELECT m.*, c.nombre_carrera FROM materias m LEFT JOIN carreras c ON m.id_carrera = c.id_carrera")->fetchAll(PDO::FETCH_ASSOC);
 $profesores = $db->query("SELECT u.id_usuario, p.nombre, p.apellido_paterno FROM usuarios u INNER JOIN personas p ON u.id_usuario = p.id_usuario WHERE u.rol = 'Profesor'")->fetchAll(PDO::FETCH_ASSOC);
 
-$horarios_activos = $db->query("SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, per.nombre_periodo, h.cupo_maximo, h.hora_inicio, h.hora_fin 
+// SE AGREGÓ h.dia_semana A LA CONSULTA
+$horarios_activos = $db->query("SELECT h.id_horario, h.dia_semana, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, per.nombre_periodo, h.cupo_maximo, h.hora_inicio, h.hora_fin 
                                 FROM horarios h 
                                 INNER JOIN materias m ON h.id_materia = m.id_materia 
                                 INNER JOIN grupos g ON h.id_grupo = g.id_grupo 
@@ -56,14 +57,15 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
         $stmt_inscritas->execute([':id_alumno' => $id_alumno]);
         $materias_inscritas = $stmt_inscritas->fetchAll(PDO::FETCH_ASSOC);
 
-        // 3. Traemos las clases disponibles para el modal de asignar (SOLO LAS NO FINALIZADAS)
-        $query_disponibles = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno as profe_apellido 
+        $query_disponibles = "SELECT g.id_grupo, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno as profe_apellido, 
+                              GROUP_CONCAT(h.dia_semana SEPARATOR ' y ') as dias_clase
                               FROM horarios h 
                               INNER JOIN materias m ON h.id_materia = m.id_materia 
                               INNER JOIN usuarios u_profe ON h.id_profesor = u_profe.id_usuario 
                               INNER JOIN personas p ON u_profe.id_usuario = p.id_usuario 
                               INNER JOIN grupos g ON h.id_grupo = g.id_grupo
-                              WHERE IFNULL((SELECT MAX(finalizado) FROM carga_academica WHERE id_horario = h.id_horario), 0) = 0";
+                              WHERE IFNULL((SELECT MAX(finalizado) FROM carga_academica WHERE id_horario = h.id_horario), 0) = 0
+                              GROUP BY g.id_grupo, m.nombre_materia, g.nombre_grupo, p.nombre, p.apellido_paterno";
         $materias_disponibles = $db->query($query_disponibles)->fetchAll(PDO::FETCH_ASSOC);
     }
 }
@@ -80,7 +82,6 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
     <link rel="stylesheet" href="../styles/estilo.css">
     <link rel="icon" type="image/x-icon" href="../assets/iconos/gestionIcono.ico">
     <style>
-        /* Estilos específicos para las pestañas (Tabs) adaptados a tu tema */
         .nav-tabs .nav-link.active { 
             color: var(--rojo-vino) !important; 
             font-weight: bold; 
@@ -104,7 +105,7 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
         <div class="menu_links">
             <a href="dashboard.php" class="item">Panel Principal</a>
             <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
-            <a href = "horarios.php" class="item">Horarios</a>
+            <a href="horarios.php" class="item">Horarios</a>
             <a href="calificaciones.php" class="item">Calificaciones</a>
             <a href="finanzas.php" class="item">Finanzas y Pagos</a>
             <a href="gestion_academica.php" class="item active">Gestión Académica</a>
@@ -122,7 +123,7 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                 <div class="d-flex flex-column gap-2 mt-3">
                     <a href="dashboard.php" class="item">Panel Principal</a>
                     <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
-                    <a href = "horarios.php" class="item">Horarios</a>
+                    <a href="horarios.php" class="item">Horarios</a>
                     <a href="calificaciones.php" class="item">Calificaciones</a>
                     <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                     <a href="gestion_academica.php" class="item active">Gestión Académica</a>
@@ -261,10 +262,18 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                                                 <td class="fw-bold"><?php echo htmlspecialchars($horario['nombre_materia']); ?></td>
                                                 <td><?php echo htmlspecialchars($horario['nombre_grupo']); ?></td>
                                                 <td><?php echo htmlspecialchars($horario['profe_nombre'] . ' ' . $horario['apellido_paterno']); ?></td>
+                                                
                                                 <td>
-                                                    <i class="bi bi-clock"></i> 
-                                                    <?php echo htmlspecialchars(substr($horario['hora_inicio'], 0, 5) . ' a ' . substr($horario['hora_fin'], 0, 5)); ?>
+                                                    <span class="d-block fw-bold text-dark mb-1">
+                                                        <i class="bi bi-calendar-event text-secondary me-1"></i>
+                                                        <?php echo htmlspecialchars($horario['dia_semana'] ?? 'Sin asignar'); ?>
+                                                    </span>
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-clock me-1"></i> 
+                                                        <?php echo htmlspecialchars(substr($horario['hora_inicio'], 0, 5) . ' a ' . substr($horario['hora_fin'], 0, 5)); ?>
+                                                    </small>
                                                 </td>
+
                                                 <td><?php echo htmlspecialchars($horario['cupo_maximo'] ?? '30'); ?></td>
                                                 <td>
                                                     <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalEditarHorario<?php echo $horario['id_horario']; ?>"><i class="bi bi-pencil"></i></button>
@@ -299,18 +308,33 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                                                                         <?php endforeach; ?>
                                                                     </select>
                                                                 </div>
-                                                                <div class="row">
-                                                                    <div class="col-4 mb-3">
+
+                                                                <div class="row g-3 mb-3">
+                                                                    <div class="col-6">
+                                                                        <label class="fw-bold">Día</label>
+                                                                        <select name="dia_semana" class="form-select" required>
+                                                                            <?php $dia_actual = $horario['dia_semana'] ?? ''; ?>
+                                                                            <option value="Lunes" <?php echo ($dia_actual == 'Lunes') ? 'selected' : ''; ?>>Lunes</option>
+                                                                            <option value="Martes" <?php echo ($dia_actual == 'Martes') ? 'selected' : ''; ?>>Martes</option>
+                                                                            <option value="Miércoles" <?php echo ($dia_actual == 'Miércoles') ? 'selected' : ''; ?>>Miércoles</option>
+                                                                            <option value="Jueves" <?php echo ($dia_actual == 'Jueves') ? 'selected' : ''; ?>>Jueves</option>
+                                                                            <option value="Viernes" <?php echo ($dia_actual == 'Viernes') ? 'selected' : ''; ?>>Viernes</option>
+                                                                            <option value="Sábado" <?php echo ($dia_actual == 'Sábado') ? 'selected' : ''; ?>>Sábado</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-6">
+                                                                        <label class="fw-bold">Cupo</label>
+                                                                        <input type="number" name="cupo_maximo" class="form-control" value="<?php echo htmlspecialchars($horario['cupo_maximo']); ?>" required>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row g-3">
+                                                                    <div class="col-6">
                                                                         <label class="fw-bold">Hora Inicio</label>
                                                                         <input type="time" name="hora_inicio" class="form-control" value="<?php echo htmlspecialchars($horario['hora_inicio']); ?>" required>
                                                                     </div>
-                                                                    <div class="col-4 mb-3">
+                                                                    <div class="col-6">
                                                                         <label class="fw-bold">Hora Fin</label>
                                                                         <input type="time" name="hora_fin" class="form-control" value="<?php echo htmlspecialchars($horario['hora_fin']); ?>" required>
-                                                                    </div>
-                                                                    <div class="col-4 mb-3">
-                                                                        <label class="fw-bold">Cupo</label>
-                                                                        <input type="number" name="cupo_maximo" class="form-control" value="<?php echo htmlspecialchars($horario['cupo_maximo']); ?>" required>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -397,8 +421,8 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                                                                     <input type="number" name="creditos" class="form-control" value="<?php echo htmlspecialchars($mat['creditos']); ?>" required>
                                                                 </div>
                                                                 <div class="col-6 mb-3">
-                                                                            <label class="fw-bold">Semestre Sugerido</label>
-                                                                            <input type="number" name="semestre" class="form-control" value="<?php echo htmlspecialchars($mat['semestre_sugerido']); ?>" required>
+                                                                    <label class="fw-bold">Semestre Sugerido</label>
+                                                                    <input type="number" name="semestre" class="form-control" value="<?php echo htmlspecialchars($mat['semestre_sugerido']); ?>" required>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -474,11 +498,11 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                     
                     <div class="mb-3">
                         <label class="form-label fw-bold">Selecciona Clase Disponible:</label>
-                        <select name="id_horario" class="form-select" required>
+                        <select name="id_grupo" class="form-select" required>
                             <option value="">-- Elige una opción --</option>
                             <?php foreach ($materias_disponibles as $disponible): ?>
-                                <option value="<?php echo $disponible['id_horario']; ?>">
-                                    <?php echo htmlspecialchars($disponible['nombre_materia'] . ' - Grupo ' . $disponible['nombre_grupo'] . ' (' . $disponible['profe_nombre'] . ' ' . $disponible['profe_apellido'] . ')'); ?>
+                                <option value="<?php echo $disponible['id_grupo']; ?>">
+                                    <?php echo htmlspecialchars($disponible['nombre_materia'] . ' - Gpo ' . $disponible['nombre_grupo'] . ' (' . $disponible['dias_clase'] . ')'); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -616,16 +640,30 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="row">
-                        <div class="col-4 mb-3">
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
                             <label class="form-label fw-bold">Grupo</label>
                             <input type="text" name="nombre_grupo" class="form-control" placeholder="Ej. 8A" required>
                         </div>
-                        <div class="col-4 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Día de Clase</label>
+                            <select name="dia_semana" class="form-select" required>
+                                <option value="">Selecciona...</option>
+                                <option value="Lunes">Lunes</option>
+                                <option value="Martes">Martes</option>
+                                <option value="Miércoles">Miércoles</option>
+                                <option value="Jueves">Jueves</option>
+                                <option value="Viernes">Viernes</option>
+                                <option value="Sábado">Sábado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
                             <label class="form-label fw-bold">Hora Inicio</label>
                             <input type="time" name="hora_inicio" class="form-control" required>
                         </div>
-                        <div class="col-4 mb-3">
+                        <div class="col-6">
                             <label class="form-label fw-bold">Hora Fin</label>
                             <input type="time" name="hora_fin" class="form-control" required>
                         </div>
