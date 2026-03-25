@@ -77,10 +77,13 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
                          INNER JOIN personas p ON u.id_usuario = p.id_usuario";
                          
     if ($rol_actual != 'Administrador') {
-        $query_mis_grupos .= " WHERE h.id_profesor = :id_profesor";
+        // AGREGAMOS EL GROUP BY AQUÍ
+        $query_mis_grupos .= " WHERE h.id_profesor = :id_profesor GROUP BY g.id_grupo";
         $stmt_grupos = $db->prepare($query_mis_grupos);
         $stmt_grupos->execute([':id_profesor' => $id_usuario_actual]);
     } else {
+        // AGREGAMOS EL GROUP BY AQUÍ TAMBIÉN
+        $query_mis_grupos .= " GROUP BY g.id_grupo";
         $stmt_grupos = $db->prepare($query_mis_grupos);
         $stmt_grupos->execute();
     }
@@ -108,6 +111,7 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
 // ==============================================================
 $mis_calificaciones = [];
 if ($rol_actual == 'Alumno') {
+    // AGREGAMOS EL GROUP BY AL FINAL DE ESTA CONSULTA
     $query_mis_calif = "SELECT ca.*, m.nombre_materia, m.creditos, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno as profe_apellido 
                         FROM carga_academica ca 
                         INNER JOIN horarios h ON ca.id_horario = h.id_horario 
@@ -115,7 +119,8 @@ if ($rol_actual == 'Alumno') {
                         INNER JOIN usuarios u_profe ON h.id_profesor = u_profe.id_usuario 
                         INNER JOIN personas p ON u_profe.id_usuario = p.id_usuario 
                         INNER JOIN grupos g ON h.id_grupo = g.id_grupo 
-                        WHERE ca.id_alumno = :id_alumno AND ca.finalizado = 0";
+                        WHERE ca.id_alumno = :id_alumno AND ca.finalizado = 0
+                        GROUP BY g.id_grupo";
     $stmt_mis_calif = $db->prepare($query_mis_calif);
     $stmt_mis_calif->execute([':id_alumno' => $id_usuario_actual]);
     $mis_calificaciones = $stmt_mis_calif->fetchAll(PDO::FETCH_ASSOC);

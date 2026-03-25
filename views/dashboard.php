@@ -19,12 +19,14 @@ $cursos_activos = [];
 // 1. OBTENER SOLO CURSOS ACTIVOS PARA EL DASHBOARD
 // ==============================================================
 if ($rol_actual == 'Profesor') {
+    // AGREGAMOS EL GROUP BY AL FINAL DE ESTA CONSULTA
     $query = "SELECT h.id_horario, m.nombre_materia, m.clave_materia, g.nombre_grupo, 
                      IFNULL((SELECT MAX(finalizado) FROM carga_academica WHERE id_horario = h.id_horario), 0) as curso_finalizado
               FROM horarios h 
               JOIN materias m ON h.id_materia = m.id_materia 
               JOIN grupos g ON h.id_grupo = g.id_grupo 
-              WHERE h.id_profesor = :id_profesor";
+              WHERE h.id_profesor = :id_profesor
+              GROUP BY g.id_grupo";
     $stmt = $db->prepare($query);
     $stmt->execute([':id_profesor' => $id_usuario_actual]);
     $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -36,6 +38,7 @@ if ($rol_actual == 'Profesor') {
     }
 
 } elseif ($rol_actual == 'Alumno') {
+    // AGREGAMOS EL GROUP BY AL FINAL DE ESTA CONSULTA
     $query = "SELECT m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, ca.finalizado
               FROM carga_academica ca 
               JOIN horarios h ON ca.id_horario = h.id_horario 
@@ -43,7 +46,8 @@ if ($rol_actual == 'Profesor') {
               JOIN grupos g ON h.id_grupo = g.id_grupo 
               JOIN usuarios u ON h.id_profesor = u.id_usuario 
               JOIN personas p ON u.id_usuario = p.id_usuario 
-              WHERE ca.id_alumno = :id_alumno";
+              WHERE ca.id_alumno = :id_alumno
+              GROUP BY g.id_grupo";
     $stmt = $db->prepare($query);
     $stmt->execute([':id_alumno' => $id_usuario_actual]);
     $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);

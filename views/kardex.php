@@ -19,24 +19,28 @@ $promedio_kardex = 0;
 // 1. OBTENER HISTORIAL (CURSOS FINALIZADOS)
 // ==============================================================
 if ($rol_actual == 'Profesor') {
-    $query = "SELECT h.id_horario, m.nombre_materia, m.clave_materia, g.nombre_grupo, 
-                     (SELECT MAX(finalizado) FROM carga_academica WHERE id_horario = h.id_horario) as curso_finalizado
+    // SE AGREGA GROUP BY PARA NO CLONAR LOS CURSOS DEL PROFE
+    $query = "SELECT MAX(h.id_horario) as id_horario, m.nombre_materia, m.clave_materia, g.nombre_grupo, 
+                     MAX((SELECT MAX(finalizado) FROM carga_academica WHERE id_horario = h.id_horario)) as curso_finalizado
               FROM horarios h 
               JOIN materias m ON h.id_materia = m.id_materia 
               JOIN grupos g ON h.id_grupo = g.id_grupo 
               WHERE h.id_profesor = :id_profesor
+              GROUP BY g.id_grupo, m.nombre_materia, m.clave_materia, g.nombre_grupo
               HAVING curso_finalizado = 1";
     $stmt = $db->prepare($query);
     $stmt->execute([':id_profesor' => $id_usuario_actual]);
     $historial = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } elseif ($rol_actual == 'Alumno') {
+    // SE AGREGA GROUP BY PARA NO CLONAR LAS MATERIAS DEL ALUMNO
     $query = "SELECT m.nombre_materia, m.clave_materia, m.creditos, per.nombre_periodo, ca.calificacion
               FROM carga_academica ca 
               JOIN horarios h ON ca.id_horario = h.id_horario 
               JOIN materias m ON h.id_materia = m.id_materia 
               LEFT JOIN periodos per ON h.id_periodo = per.id_periodo
               WHERE ca.id_alumno = :id_alumno AND ca.finalizado = 1
+              GROUP BY h.id_grupo, m.nombre_materia, m.clave_materia, m.creditos, per.nombre_periodo, ca.calificacion
               ORDER BY per.id_periodo DESC, m.nombre_materia ASC";
     $stmt = $db->prepare($query);
     $stmt->execute([':id_alumno' => $id_usuario_actual]);
