@@ -33,12 +33,10 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
         try {
             $db->beginTransaction();
             
-            // Actualizamos la base de datos
             $query_update = "UPDATE carga_academica SET u1=?, u2=?, u3=?, u4=?, u5=?, u6=?, calificacion=?, finalizado=IF(finalizado=1 AND ?=0, 1, ?) WHERE id_carga=?";
             $stmt_update = $db->prepare($query_update);
 
             foreach ($ids_cargas as $id_carga) {
-                // Convertir a null si está vacío
                 $v1 = ($u1[$id_carga] !== '') ? floatval($u1[$id_carga]) : null;
                 $v2 = ($u2[$id_carga] !== '') ? floatval($u2[$id_carga]) : null;
                 $v3 = ($u3[$id_carga] !== '') ? floatval($u3[$id_carga]) : null;
@@ -46,7 +44,6 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
                 $v5 = ($u5[$id_carga] !== '') ? floatval($u5[$id_carga]) : null;
                 $v6 = ($u6[$id_carga] !== '') ? floatval($u6[$id_carga]) : null;
                 
-                // Calcular promedio ignorando nulos
                 $suma = 0; $count = 0;
                 $vals = [$v1, $v2, $v3, $v4, $v5, $v6];
                 foreach($vals as $v) { 
@@ -67,9 +64,9 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
         }
     }
 
-// OBTENER GRUPOS (Sabiendo si ya fueron finalizados)
-    $query_mis_grupos = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno,
-                         IFNULL((SELECT MAX(finalizado) FROM carga_academica WHERE id_horario = h.id_horario), 0) as curso_finalizado
+    // OBTENER GRUPOS (Sabiendo si ya fueron finalizados)
+    $query_mis_grupos = "SELECT MAX(h.id_horario) as id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno,
+                         IFNULL((SELECT MAX(finalizado) FROM carga_academica WHERE id_horario = MAX(h.id_horario)), 0) as curso_finalizado
                          FROM horarios h 
                          INNER JOIN materias m ON h.id_materia = m.id_materia 
                          INNER JOIN grupos g ON h.id_grupo = g.id_grupo 
@@ -77,13 +74,11 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
                          INNER JOIN personas p ON u.id_usuario = p.id_usuario";
                          
     if ($rol_actual != 'Administrador') {
-        // Le agregamos la condición WHERE para el Profe, pero el GROUP BY va al final
-        $query_mis_grupos .= " WHERE h.id_profesor = :id_profesor GROUP BY g.id_grupo";
+        $query_mis_grupos .= " WHERE h.id_profesor = :id_profesor GROUP BY g.id_grupo, m.nombre_materia, g.nombre_grupo, p.nombre, p.apellido_paterno";
         $stmt_grupos = $db->prepare($query_mis_grupos);
         $stmt_grupos->execute([':id_profesor' => $id_usuario_actual]);
     } else {
-        // Aquí solo agregamos el GROUP BY para el Administrador
-        $query_mis_grupos .= " GROUP BY g.id_grupo";
+        $query_mis_grupos .= " GROUP BY g.id_grupo, m.nombre_materia, g.nombre_grupo, p.nombre, p.apellido_paterno";
         $stmt_grupos = $db->prepare($query_mis_grupos);
         $stmt_grupos->execute();
     }
@@ -107,18 +102,21 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
 }
 
 // ==============================================================
-// 2. LÓGICA PARA EL ALUMNO (SOLO CURSOS NO FINALIZADOS)
+// 2. LÓGICA PARA EL ALUMNO (SOLUCION AL ERROR 500)
 // ==============================================================
 $mis_calificaciones = [];
 if ($rol_actual == 'Alumno') {
-    $query_mis_calif = "SELECT ca.*, m.nombre_materia, m.creditos, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno as profe_apellido 
+    // Usamos MAX() para que MySQL estricto no se queje y no tire Error 500
+    $query_mis_calif = "SELECT MAX(ca.id_carga) as id_carga, m.nombre_materia, m.creditos, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno as profe_apellido, 
+                               MAX(ca.u1) as u1, MAX(ca.u2) as u2, MAX(ca.u3) as u3, MAX(ca.u4) as u4, MAX(ca.u5) as u5, MAX(ca.u6) as u6, MAX(ca.calificacion) as calificacion
                         FROM carga_academica ca 
                         INNER JOIN horarios h ON ca.id_horario = h.id_horario 
                         INNER JOIN materias m ON h.id_materia = m.id_materia 
                         INNER JOIN usuarios u_profe ON h.id_profesor = u_profe.id_usuario 
-                        INNER JOIN personas p ON u.id_usuario = p.id_usuario 
+                        INNER JOIN personas p ON u_profe.id_usuario = p.id_usuario 
                         INNER JOIN grupos g ON h.id_grupo = g.id_grupo 
-                        WHERE ca.id_alumno = :id_alumno AND ca.finalizado = 0";
+                        WHERE ca.id_alumno = :id_alumno AND ca.finalizado = 0
+                        GROUP BY g.id_grupo, m.nombre_materia, m.creditos, g.nombre_grupo, p.nombre, p.apellido_paterno";
     $stmt_mis_calif = $db->prepare($query_mis_calif);
     $stmt_mis_calif->execute([':id_alumno' => $id_usuario_actual]);
     $mis_calificaciones = $stmt_mis_calif->fetchAll(PDO::FETCH_ASSOC);
