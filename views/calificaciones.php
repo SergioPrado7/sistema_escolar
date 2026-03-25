@@ -196,12 +196,84 @@ if ($rol_actual == 'Alumno') {
             font-weight: 900;
         }
         
-        /* Estilo para los inputs bloqueados */
         input[readonly].input-unidad {
             background-color: #e9ecef !important;
             color: #6c757d;
             border-color: #dee2e6;
             pointer-events: none;
+        }
+
+        @media print {
+            @page {
+                size: portrait; 
+                margin: 15mm;
+            }
+
+            body {
+                background-color: white !important;
+                font-size: 10pt !important;
+            }
+
+            .sidebar, .navbar, .alert, .btn, button, select, .no-imprimir {
+                display: none !important;
+            }
+
+            .card.borde-vino {
+                display: none !important;
+            }
+
+            .main_contenido {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .card-header .d-flex.align-items-center {
+                display: none !important;
+            }
+
+            .table-responsive {
+                overflow: visible !important;
+            }
+
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+
+            th, td {
+                border: 1px solid #000 !important;
+                color: #000 !important;
+                padding: 6px !important;
+            }
+
+            thead th {
+                background-color: #f8f9fa !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                border-bottom: 2px solid #000 !important;
+            }
+
+            input.input-unidad {
+                border: none !important;
+                background: transparent !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                color: #000 !important;
+                text-align: center;
+                padding: 0 !important;
+                font-size: 10pt !important;
+            }
+
+            .border-top.pt-3 {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -258,7 +330,16 @@ if ($rol_actual == 'Alumno') {
                 <?php if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador'): ?>
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 style="color: var(--rojo-vino); font-weight: bold;"><i class="bi bi-award-fill me-2"></i> Centro de Evaluaciones</h1>
+                        <div>
+                            <h1 style="color: var(--rojo-vino); font-weight: bold;" class="no-imprimir">
+                                <i class="bi bi-award-fill me-2"></i> Centro de Evaluaciones
+                            </h1>
+                            <div class="d-none d-print-block text-center mb-4">
+                                <h3 class="fw-bold mb-1" style="color: var(--rojo-vino); text-transform: uppercase;">Acta de Calificaciones</h3>
+                                <h5 class="text-dark fw-bold">Instituto Tecnológico Superior de San Pedro de las Colonias</h5>
+                                <hr style="border-top: 2px solid var(--rojo-vino); opacity: 1;">
+                            </div>
+                        </div>
                     </div>
 
                     <?php if (isset($_GET['exito'])): ?>
@@ -454,6 +535,47 @@ if ($rol_actual == 'Alumno') {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const inputs = Array.from(document.querySelectorAll('.input-unidad:not([readonly])'));
+            const columnas = 6;
+
+            inputs.forEach((input, index) => {
+                input.addEventListener('keydown', function(e) {
+                    let destino = null;
+
+                    if (e.key === 'ArrowDown') {
+                        destino = index + columnas;
+                        e.preventDefault(); 
+                    }
+                   
+                    else if (e.key === 'ArrowUp') {
+                        destino = index - columnas;
+                        e.preventDefault();
+                    }
+                   
+                    else if (e.key === 'ArrowRight') {
+                        if (index % columnas !== (columnas - 1)) {
+                            destino = index + 1;
+                        }
+                    }
+                    
+                    else if (e.key === 'ArrowLeft') {
+                        if (index % columnas !== 0) {
+                            destino = index - 1;
+                        }
+                    }
+
+                    if (destino !== null && inputs[destino]) {
+                        inputs[destino].focus();
+                        inputs[destino].select(); 
+                    }
+                });
+            });
+        });
+    </script>
+
 </body>
 
 </html>
