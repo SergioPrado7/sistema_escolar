@@ -16,31 +16,8 @@ $id_usuario_actual = $_SESSION['id_usuario'];
 $mi_horario = [];
 $alumno_info = null;
 
-// ==============================================================
-// 1. OBTENER FOTO DE PERFIL DEL USUARIO PARA LA BARRA SUPERIOR
-// ==============================================================
-$tiene_foto = false;
-$foto_header = "";
-
-try {
-    $stmt_foto = $db->prepare("SELECT foto_perfil FROM usuarios WHERE id_usuario = :id");
-    $stmt_foto->execute([':id' => $id_usuario_actual]);
-    $foto_db = $stmt_foto->fetch(PDO::FETCH_ASSOC);
-
-    if ($foto_db && !empty($foto_db['foto_perfil']) && $foto_db['foto_perfil'] != 'default.png') {
-        $tiene_foto = true;
-        $foto_header = '../assets/perfiles/' . $foto_db['foto_perfil'];
-    }
-} catch (Exception $e) {
-    // Si la columna foto_perfil aún no existe o hay error, no pasa nada
-}
-
-// ==============================================================
-// 2. LÓGICA DE HORARIOS SEGÚN EL ROL
-// ==============================================================
 try {
     if ($rol_actual == 'Administrador') {
-        // Si el administrador buscó una matrícula
         if (isset($_GET['matricula']) && !empty(trim($_GET['matricula']))) {
             $matricula_buscada = trim($_GET['matricula']);
 
@@ -60,12 +37,10 @@ try {
             $stmt->execute([':matricula' => $matricula_buscada]);
             $mi_horario = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Traemos el nombre del alumno para mostrarlo bonito
             $stmt_alumno = $db->prepare("SELECT p.nombre, p.apellido_paterno FROM usuarios u JOIN personas p ON u.id_usuario = p.id_usuario WHERE u.matricula = :matricula");
             $stmt_alumno->execute([':matricula' => $matricula_buscada]);
             $alumno_info = $stmt_alumno->fetch(PDO::FETCH_ASSOC);
         } else {
-            // Si no ha buscado nada, mostramos el Horario Maestro general
             $query = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
                              h.hora_inicio, h.hora_fin, h.dia_semana, per.nombre_periodo, h.cupo_maximo
                       FROM horarios h 
@@ -136,24 +111,12 @@ try {
             width: 100% !important;
         }
 
-        .foto-mini-header {
-            width: 35px;
-            height: 35px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 2px solid var(--rojo-vino);
-        }
-
-        /* ============================================================== */
-        /* MAGIA PARA IMPRIMIR HORARIOS SIN QUE SE CORTE                  */
-        /* ============================================================== */
         @media print {
             @page {
                 size: landscape;
                 margin: 10mm;
             }
 
-            /* Intenta forzar horizontal */
             body {
                 background-color: white !important;
                 font-size: 10px !important;
@@ -163,9 +126,9 @@ try {
                 display: none !important;
             }
 
-            /* Obligamos a la tabla a no desbordarse */
             .table-responsive {
                 overflow: visible !important;
+                display: block !important;
                 width: 100% !important;
                 margin: 0 !important;
             }
@@ -184,15 +147,23 @@ try {
                 padding: 0 !important;
             }
 
-            /* Ajustes estrictos para la tabla en impresión */
             table {
                 border-collapse: collapse !important;
                 width: 100% !important;
                 max-width: 100% !important;
                 table-layout: fixed !important;
-                /* Fuerza a que las columnas midan lo mismo */
                 font-size: 9px !important;
-                /* Letra más pequeña para que quepa todo */
+                page-break-inside: auto !important;
+            }
+
+            thead {
+                display: table-header-group !important;
+            }
+
+            tr {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                page-break-after: auto !important;
             }
 
             th,
@@ -200,13 +171,9 @@ try {
                 border: 1px solid #000 !important;
                 color: #000 !important;
                 padding: 4px !important;
-                /* Reducimos el padding (espacio en blanco) */
                 word-wrap: break-word !important;
-                /* Permite cortar palabras si son muy largas */
-                overflow: hidden !important;
             }
 
-            /* Mantener el color vino de los bloques de clases */
             .bg-vino,
             .bg-vino * {
                 background-color: var(--rojo-vino) !important;
@@ -215,7 +182,6 @@ try {
                 print-color-adjust: exact !important;
             }
 
-            /* Ajustar las tarjetitas blancas de los grupos dentro de la clase */
             .badge.bg-light {
                 background-color: white !important;
                 color: black !important;
@@ -223,7 +189,6 @@ try {
                 font-size: 8px !important;
             }
 
-            /* Ajustar altura de celdas para ahorrar espacio */
             td[style*="height: 100px;"] {
                 height: auto !important;
                 min-height: 50px !important;
@@ -375,7 +340,12 @@ try {
                                             <tr>
                                                 <td class="fw-bold bg-light text-muted border-end" style="font-size: 0.9rem;">
                                                     <i class="bi bi-clock me-1 no-imprimir"></i><br>
-                                                    <?php echo $hora; ?>
+                                                    <?php
+                                                    // CONVERSIÓN A 12 HORAS (AM/PM) SOLO PARA MOSTRAR
+                                                    $partes_hora = explode(' - ', $hora);
+                                                    $hora_12 = date("h:i A", strtotime($partes_hora[0])) . ' - ' . date("h:i A", strtotime($partes_hora[1]));
+                                                    echo $hora_12;
+                                                    ?>
                                                 </td>
 
                                                 <?php foreach ($dias_semana as $dia):
