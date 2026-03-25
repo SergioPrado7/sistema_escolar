@@ -158,7 +158,7 @@ if ($rol_actual == 'Alumno') {
             <a href="horarios.php" class="item">Horarios</a>
             <a href="calificaciones.php" class="item active">Calificaciones</a>
             <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?><a href="finanzas.php" class="item">Finanzas y Pagos</a><?php endif; ?>
-            <?php if ($_SESSION['rol'] == 'Administrador'): ?><a href="gestion_academica.php" class="item">Carga Académica</a><?php endif; ?>
+            <?php if ($_SESSION['rol'] == 'Administrador'): ?><a href="gestion_academica.php" class="item">Gestión Académica</a><?php endif; ?>
             <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?><a href="servicio_social.php" class="item">Servicio Social</a><?php endif; ?>
             <?php if ($_SESSION['rol'] == 'Alumno' || $_SESSION['rol'] == 'Profesor'): ?><a href="kardex.php" class="item">Kardex</a><?php endif; ?>
         </div>
@@ -179,6 +179,9 @@ if ($rol_actual == 'Alumno') {
                     <?php if ($_SESSION['rol'] == 'Alumno' || $_SESSION['rol'] == 'Administrador'): ?>
                     <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                     <a href="servicio_social.php" class="item">Servicio Social</a>
+                    <?php endif; ?>
+                    <?php if ($_SESSION['rol'] == 'Administrador'): ?>
+                    <a href="gestion_usuarios.php" class="item">Gestión Academica</a>
                     <?php endif; ?>
                     <?php if ($_SESSION['rol'] == 'Alumno' || $_SESSION['rol'] == 'Profesor'): ?>
                     <a href="kardex.php" class="item">Kardex</a>
