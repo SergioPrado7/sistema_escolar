@@ -17,7 +17,26 @@ $mi_horario = [];
 $alumno_info = null;
 
 // ==============================================================
-// LÓGICA DE HORARIOS SEGÚN EL ROL
+// 1. OBTENER FOTO DE PERFIL DEL USUARIO PARA LA BARRA SUPERIOR
+// ==============================================================
+$tiene_foto = false;
+$foto_header = "";
+
+try {
+    $stmt_foto = $db->prepare("SELECT foto_perfil FROM usuarios WHERE id_usuario = :id");
+    $stmt_foto->execute([':id' => $id_usuario_actual]);
+    $foto_db = $stmt_foto->fetch(PDO::FETCH_ASSOC);
+    
+    if ($foto_db && !empty($foto_db['foto_perfil']) && $foto_db['foto_perfil'] != 'default.png') {
+        $tiene_foto = true;
+        $foto_header = '../assets/perfiles/' . $foto_db['foto_perfil'];
+    }
+} catch (Exception $e) {
+    // Si la columna foto_perfil aún no existe o hay error, no pasa nada
+}
+
+// ==============================================================
+// 2. LÓGICA DE HORARIOS SEGÚN EL ROL
 // ==============================================================
 try {
     if ($rol_actual == 'Administrador') {
@@ -34,7 +53,7 @@ try {
                       JOIN grupos g ON h.id_grupo = g.id_grupo 
                       JOIN usuarios u_alumno ON ca.id_alumno = u_alumno.id_usuario
                       JOIN usuarios u_profe ON h.id_profesor = u_profe.id_usuario 
-                      JOIN personas p ON u_profe.id_usuario = p.id_usuario 
+                      JOIN personas p ON u.id_usuario = p.id_usuario 
                       LEFT JOIN periodos per ON h.id_periodo = per.id_periodo
                       WHERE u_alumno.matricula = :matricula
                       ORDER BY h.hora_inicio ASC";
@@ -113,6 +132,14 @@ try {
     <style>
         .borde-vino { border-left: 5px solid var(--rojo-vino) !important; }
         .main_contenido { margin-left: 0 !important; width: 100% !important; }
+        
+        .foto-mini-header {
+            width: 35px;
+            height: 35px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--rojo-vino);
+        }
 
         /* MAGIA PARA IMPRIMIR: Oculta los menús y deja solo la tabla en blanco y negro */
         @media print {
@@ -149,6 +176,9 @@ try {
                 <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                 <a href="servicio_social.php" class="item">Servicio Social</a>
                 <?php endif; ?>
+                <?php if ($_SESSION['rol'] == 'Alumno' || $_SESSION['rol'] == 'Profesor'): ?>
+                <a href="kardex.php" class="item">Kardex</a>
+                <?php endif; ?>
             </div>
         </nav>
 
@@ -157,7 +187,7 @@ try {
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuMovil">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <span class="text-white fw-bold">Horario de Clases</span>
+                <span class="text-white fw-bold">Horarios</span>
                 <div class="collapse navbar-collapse" id="menuMovil">
                     <div class="d-flex flex-column gap-2 mt-3">
                         <a href="dashboard.php" class="item">Panel Principal</a>
@@ -175,6 +205,9 @@ try {
                         <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                         <a href="servicio_social.php" class="item">Servicio Social</a>
                         <?php endif; ?>
+                        <?php if ($_SESSION['rol'] == 'Alumno' || $_SESSION['rol'] == 'Profesor'): ?>
+                        <a href="kardex.php" class="item">Kardex</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -183,25 +216,31 @@ try {
         <main class="main_contenido flex-grow-1 min-vh-100">
             <header class="top_header bg-white shadow-sm px-4 py-3 d-flex justify-content-between align-items-center no-imprimir">
                 <h4 class="mb-0 fw-bold" style="color: var(--rojo-vino);">
-                    <i class="bi bi-calendar3 me-2"></i> Mi Horario
+                    <i class="bi bi-calendar3 me-2"></i> <?php echo ($rol_actual == 'Administrador') ? 'Horarios' : 'Mi Horario'; ?>
                 </h4>
                 <div class="dropdown">
                     <div class="perfil dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
                         <span class="fw-semibold text-secondary me-2 d-none d-sm-inline">Mi Cuenta</span>
-                        <i class="bi bi-person-circle fs-3 text-secondary"></i>
+                        <?php if ($tiene_foto): ?>
+                            <img src="<?php echo $foto_header; ?>" alt="Foto" class="foto-mini-header shadow-sm">
+                        <?php else: ?>
+                            <i class="bi bi-person-circle fs-3 text-secondary"></i>
+                        <?php endif; ?>
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2">
+                        <li><a class="dropdown-item fw-bold text-dark" href="perfil.php"><i class="bi bi-person-lines-fill me-2"></i> Mi Perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger fw-bold" href="../controllers/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión</a></li>
                     </ul>
                 </div>
             </header>
 
-            <section class="p-4">
+            <div class="p-4">
                 
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
                     <div>
-                        <h3 class="fw-bold" style="color: #333;">Horario de Clases</h3>
-                        <p class="text-muted mb-0">Revisa tus sesiones asignadas</p>
+                        <h1 style="color: var(--rojo-vino); font-weight: bold;"><i class="bi bi-calendar3 me-2 no-imprimir"></i> <?php echo ($rol_actual == 'Administrador') ? 'Horarios' : 'Mi Horario'; ?></h1>
+                        <p class="text-muted mb-0"><?php echo ($rol_actual == 'Administrador') ? 'Consulta y gestiona los horarios del ciclo' : 'Revisa tus sesiones asignadas'; ?></p>
                     </div>
                     <button onclick="window.print()" class="btn text-white fw-bold mt-3 mt-md-0 no-imprimir shadow-sm" style="background-color: var(--rojo-vino);">
                         <i class="bi bi-printer-fill me-2"></i> Imprimir Horario
@@ -239,6 +278,7 @@ try {
                     </div>
                 <?php endif; ?>
                 <?php endif; ?>
+
                 <div class="card shadow-sm border-0 borde-vino">
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -261,10 +301,10 @@ try {
                             <?php if (count($mi_horario) > 0): ?>
                                 <table class="table table-bordered text-center align-middle mb-0 table-sm" style="min-width: 800px;">
                                     <thead>
-                                        <tr class="text-white" style="background-color: var(--rojo-vino);">
-                                            <th class="py-3 bg-vino" style="width: 10%; background-color: var(--rojo-vino);">Hora</th>
+                                        <tr style="background-color: var(--rojo-vino);">
+                                            <th class="py-3 bg-vino text-white" style="width: 10%; background-color: var(--rojo-vino);">Hora</th>
                                             <?php foreach($dias_semana as $dia): ?>
-                                                <th class="py-3 bg-vino" style="width: 15%; background-color: var(--rojo-vino);"><?php echo $dia; ?></th>
+                                                <th class="py-3 bg-vino text-white" style="width: 15%; background-color: var(--rojo-vino);"><?php echo $dia; ?></th>
                                             <?php endforeach; ?>
                                         </tr>
                                     </thead>
@@ -325,7 +365,7 @@ try {
                     </div>
                 </div>
 
-            </section>
+            </div>
         </main>
     </div>
 
