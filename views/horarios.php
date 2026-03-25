@@ -138,8 +138,8 @@ try {
                 <?php if ($_SESSION['rol'] == 'Administrador'): ?>
                 <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                 <?php endif; ?>
+                <a href="horarios.php" class="item active">Horarios</a>
                 <a href="calificaciones.php" class="item">Calificaciones</a>
-                <a href="horarios.php" class="item active">Horarios</a> 
                 <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                 <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                 <?php endif; ?>
@@ -167,8 +167,8 @@ try {
                         <?php if ($_SESSION['rol'] == 'Administrador'): ?>
                         <a href="gestion_usuarios.php" class="item">Gestión Usuarios</a>
                         <?php endif; ?>
-                        <a href="calificaciones.php" class="item">Calificaciones</a>
                         <a href="horarios.php" class="item active">Horarios</a> 
+                        <a href="calificaciones.php" class="item">Calificaciones</a>
                         <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?>
                         <a href="finanzas.php" class="item">Finanzas y Pagos</a>
                         <?php endif; ?>
