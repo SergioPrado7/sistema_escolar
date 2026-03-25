@@ -462,7 +462,6 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                                     <table class="table table-hover align-middle">
                                         <thead style="color: var(--rojo-vino);">
                                             <tr>
-                                                <th>ID</th>
                                                 <th>Nombre del Periodo</th>
                                                 <th>Fechas</th>
                                                 <th>Estatus</th>
@@ -473,7 +472,6 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                                             <?php if (count($periodos) > 0): ?>
                                                 <?php foreach ($periodos as $per): ?>
                                                     <tr>
-                                                        <td class="text-muted"><?php echo $per['id_periodo']; ?></td>
                                                         <td class="fw-bold"><?php echo htmlspecialchars($per['nombre_periodo'] ?? 'No definido'); ?></td>
                                                         <td class="text-muted"><i class="bi bi-calendar-range me-1"></i> <?php echo $per['fecha_inicio'] . ' al ' . $per['fecha_fin']; ?></td>
                                                         <td><span class="badge bg-success">Activo</span></td>
