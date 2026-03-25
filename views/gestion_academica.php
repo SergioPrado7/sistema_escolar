@@ -44,7 +44,7 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
     if ($alumno_encontrado) {
         $id_alumno = $alumno_encontrado['id_usuario'];
 
-        // 2. Traemos su horario/materias inscritas
+// 2. Traemos su horario/materias inscritas AGRUPADAS
         $query_inscritas = "SELECT ca.id_carga, m.nombre_materia, p.nombre as profe_nombre, p.apellido_paterno as profe_apellido, g.nombre_grupo, ca.calificacion 
                             FROM carga_academica ca 
                             INNER JOIN horarios h ON ca.id_horario = h.id_horario 
@@ -52,7 +52,8 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                             INNER JOIN usuarios u_profe ON h.id_profesor = u_profe.id_usuario 
                             INNER JOIN personas p ON u_profe.id_usuario = p.id_usuario 
                             INNER JOIN grupos g ON h.id_grupo = g.id_grupo 
-                            WHERE ca.id_alumno = :id_alumno";
+                            WHERE ca.id_alumno = :id_alumno
+                            GROUP BY g.id_grupo, m.nombre_materia, p.nombre, p.apellido_paterno, g.nombre_grupo, ca.calificacion";
         $stmt_inscritas = $db->prepare($query_inscritas);
         $stmt_inscritas->execute([':id_alumno' => $id_alumno]);
         $materias_inscritas = $stmt_inscritas->fetchAll(PDO::FETCH_ASSOC);
