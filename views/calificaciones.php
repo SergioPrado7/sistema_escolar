@@ -67,7 +67,7 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
         }
     }
 
-    // OBTENER GRUPOS (Sabiendo si ya fueron finalizados)
+// OBTENER GRUPOS (Sabiendo si ya fueron finalizados)
     $query_mis_grupos = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno,
                          IFNULL((SELECT MAX(finalizado) FROM carga_academica WHERE id_horario = h.id_horario), 0) as curso_finalizado
                          FROM horarios h 
@@ -77,10 +77,13 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
                          INNER JOIN personas p ON u.id_usuario = p.id_usuario";
                          
     if ($rol_actual != 'Administrador') {
-        $query_mis_grupos .= " WHERE h.id_profesor = :id_profesor";
+        // Le agregamos la condición WHERE para el Profe, pero el GROUP BY va al final
+        $query_mis_grupos .= " WHERE h.id_profesor = :id_profesor GROUP BY g.id_grupo";
         $stmt_grupos = $db->prepare($query_mis_grupos);
         $stmt_grupos->execute([':id_profesor' => $id_usuario_actual]);
     } else {
+        // Aquí solo agregamos el GROUP BY para el Administrador
+        $query_mis_grupos .= " GROUP BY g.id_grupo";
         $stmt_grupos = $db->prepare($query_mis_grupos);
         $stmt_grupos->execute();
     }
