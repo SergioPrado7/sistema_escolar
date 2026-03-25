@@ -26,13 +26,23 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
         $u6 = $_POST['u6'] ?? [];
         $ids_cargas = $_POST['id_cargas'] ?? [];
 
-        try {
+try {
             $db->beginTransaction();
 
-            $query_update = "UPDATE carga_academica SET u1=?, u2=?, u3=?, u4=?, u5=?, u6=?, calificacion=?, finalizado=IF(finalizado=1 AND ?=0, 1, ?) WHERE id_carga=?";
+            $stmt_get_grupo = $db->prepare("SELECT id_grupo FROM horarios WHERE id_horario = ?");
+            $stmt_get_grupo->execute([$id_horario_actual]);
+            $id_grupo_actual = $stmt_get_grupo->fetchColumn();
+
+            $query_update = "UPDATE carga_academica 
+                             SET u1=?, u2=?, u3=?, u4=?, u5=?, u6=?, calificacion=?, finalizado=IF(finalizado=1 AND ?=0, 1, ?) 
+                             WHERE id_alumno = ? AND id_horario IN (SELECT id_horario FROM horarios WHERE id_grupo = ?)";
             $stmt_update = $db->prepare($query_update);
 
             foreach ($ids_cargas as $id_carga) {
+                $stmt_alumno = $db->prepare("SELECT id_alumno FROM carga_academica WHERE id_carga = ?");
+                $stmt_alumno->execute([$id_carga]);
+                $id_alumno_actual = $stmt_alumno->fetchColumn();
+
                 $v1 = ($u1[$id_carga] !== '') ? floatval($u1[$id_carga]) : null;
                 $v2 = ($u2[$id_carga] !== '') ? floatval($u2[$id_carga]) : null;
                 $v3 = ($u3[$id_carga] !== '') ? floatval($u3[$id_carga]) : null;
@@ -51,7 +61,7 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
                 }
                 $promedio = ($count > 0) ? round($suma / $count, 1) : null;
 
-                $stmt_update->execute([$v1, $v2, $v3, $v4, $v5, $v6, $promedio, $es_finalizar, $es_finalizar, $id_carga]);
+                $stmt_update->execute([$v1, $v2, $v3, $v4, $v5, $v6, $promedio, $es_finalizar, $es_finalizar, $id_alumno_actual, $id_grupo_actual]);
             }
 
             $db->commit();
@@ -59,7 +69,7 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
             exit();
         } catch (PDOException $e) {
             $db->rollBack();
-            die("Error al guardar calificaciones: " . $e->getMessage());
+            die("Error al guardar calificaciones de forma sincronizada: " . $e->getMessage());
         }
     }
 
