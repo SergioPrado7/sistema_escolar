@@ -16,6 +16,28 @@ $id_usuario_actual = $_SESSION['id_usuario'];
 $mi_horario = [];
 $alumno_info = null;
 
+// ==============================================================
+// 1. OBTENER FOTO DE PERFIL DEL USUARIO PARA LA BARRA SUPERIOR
+// ==============================================================
+$tiene_foto = false;
+$foto_header = "";
+
+try {
+    $stmt_foto = $db->prepare("SELECT foto_perfil FROM usuarios WHERE id_usuario = :id");
+    $stmt_foto->execute([':id' => $id_usuario_actual]);
+    $foto_db = $stmt_foto->fetch(PDO::FETCH_ASSOC);
+
+    if ($foto_db && !empty($foto_db['foto_perfil']) && $foto_db['foto_perfil'] != 'default.png') {
+        $tiene_foto = true;
+        $foto_header = '../assets/perfiles/' . $foto_db['foto_perfil'];
+    }
+} catch (Exception $e) {
+    // Si la columna foto_perfil aún no existe o hay error, no pasa nada
+}
+
+// ==============================================================
+// 2. LÓGICA DE HORARIOS SEGÚN EL ROL
+// ==============================================================
 try {
     if ($rol_actual == 'Administrador') {
         // Si el administrador buscó una matrícula
@@ -30,7 +52,7 @@ try {
                       JOIN grupos g ON h.id_grupo = g.id_grupo 
                       JOIN usuarios u_alumno ON ca.id_alumno = u_alumno.id_usuario
                       JOIN usuarios u_profe ON h.id_profesor = u_profe.id_usuario 
-                      JOIN personas p ON u.id_usuario = p.id_usuario 
+                      JOIN personas p ON u_profe.id_usuario = p.id_usuario 
                       LEFT JOIN periodos per ON h.id_periodo = per.id_periodo
                       WHERE u_alumno.matricula = :matricula
                       ORDER BY h.hora_inicio ASC";
@@ -38,10 +60,12 @@ try {
             $stmt->execute([':matricula' => $matricula_buscada]);
             $mi_horario = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+            // Traemos el nombre del alumno para mostrarlo bonito
             $stmt_alumno = $db->prepare("SELECT p.nombre, p.apellido_paterno FROM usuarios u JOIN personas p ON u.id_usuario = p.id_usuario WHERE u.matricula = :matricula");
             $stmt_alumno->execute([':matricula' => $matricula_buscada]);
             $alumno_info = $stmt_alumno->fetch(PDO::FETCH_ASSOC);
         } else {
+            // Si no ha buscado nada, mostramos el Horario Maestro general
             $query = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
                              h.hora_inicio, h.hora_fin, h.dia_semana, per.nombre_periodo, h.cupo_maximo
                       FROM horarios h 
@@ -112,34 +136,97 @@ try {
             width: 100% !important;
         }
 
+        .foto-mini-header {
+            width: 35px;
+            height: 35px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--rojo-vino);
+        }
+
+        /* ============================================================== */
+        /* MAGIA PARA IMPRIMIR HORARIOS SIN QUE SE CORTE                  */
+        /* ============================================================== */
         @media print {
+            @page {
+                size: landscape;
+                margin: 10mm;
+            }
+
+            /* Intenta forzar horizontal */
             body {
                 background-color: white !important;
+                font-size: 10px !important;
             }
 
             .no-imprimir {
                 display: none !important;
             }
 
-            .card {
-                box-shadow: none !important;
-                border: 1px solid #ccc !important;
+            /* Obligamos a la tabla a no desbordarse */
+            .table-responsive {
+                overflow: visible !important;
+                width: 100% !important;
+                margin: 0 !important;
             }
 
+            .main_contenido {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Ajustes estrictos para la tabla en impresión */
             table {
                 border-collapse: collapse !important;
                 width: 100% !important;
+                max-width: 100% !important;
+                table-layout: fixed !important;
+                /* Fuerza a que las columnas midan lo mismo */
+                font-size: 9px !important;
+                /* Letra más pequeña para que quepa todo */
             }
 
             th,
             td {
                 border: 1px solid #000 !important;
                 color: #000 !important;
+                padding: 4px !important;
+                /* Reducimos el padding (espacio en blanco) */
+                word-wrap: break-word !important;
+                /* Permite cortar palabras si son muy largas */
+                overflow: hidden !important;
             }
 
-            .bg-vino {
-                background-color: #ddd !important;
-                color: #000 !important;
+            /* Mantener el color vino de los bloques de clases */
+            .bg-vino,
+            .bg-vino * {
+                background-color: var(--rojo-vino) !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Ajustar las tarjetitas blancas de los grupos dentro de la clase */
+            .badge.bg-light {
+                background-color: white !important;
+                color: black !important;
+                border: 1px solid black !important;
+                font-size: 8px !important;
+            }
+
+            /* Ajustar altura de celdas para ahorrar espacio */
+            td[style*="height: 100px;"] {
+                height: auto !important;
+                min-height: 50px !important;
             }
         }
     </style>
@@ -211,11 +298,15 @@ try {
 
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
                     <div>
-                        <h1 style="color: var(--rojo-vino); font-weight: bold;">
-                            <i class="bi bi-calendar3 me-2 no-imprimir"></i>
+                        <h1 style="color: var(--rojo-vino); font-weight: bold;" class="no-imprimir">
+                            <i class="bi bi-calendar3 me-2"></i>
                             <?php echo ($rol_actual == 'Administrador') ? 'Horarios' : 'Mi Horario'; ?>
                         </h1>
+                        <h3 class="d-none d-print-block text-center fw-bold mb-4" style="color: var(--rojo-vino);">
+                            <?php echo ($rol_actual == 'Administrador') ? 'Horario de Clases' : 'Mi Horario de Clases'; ?>
+                        </h3>
                     </div>
+
                     <button onclick="window.print()" class="btn text-white fw-bold mt-3 mt-md-0 no-imprimir shadow-sm" style="background-color: var(--rojo-vino);">
                         <i class="bi bi-printer-fill me-2"></i> Imprimir Horario
                     </button>
@@ -240,14 +331,14 @@ try {
 
                     <?php if (isset($alumno_info) && $alumno_info): ?>
                         <div class="alert shadow-sm border-0 d-flex align-items-center mb-4" style="background-color: #e9ecef; border-left: 5px solid var(--rojo-vino) !important;">
-                            <i class="bi bi-person-bounding-box fs-3 me-3" style="color: var(--rojo-vino);"></i>
+                            <i class="bi bi-person-bounding-box fs-3 me-3 no-imprimir" style="color: var(--rojo-vino);"></i>
                             <div>
-                                <h6 class="mb-0 fw-bold">Mostrando el horario de:</h6>
+                                <h6 class="mb-0 fw-bold">Horario de Alumno:</h6>
                                 <span class="text-dark fs-5"><?php echo htmlspecialchars($alumno_info['nombre'] . ' ' . $alumno_info['apellido_paterno']); ?></span>
                             </div>
                         </div>
                     <?php elseif (isset($_GET['matricula']) && !empty($_GET['matricula']) && !$alumno_info): ?>
-                        <div class="alert alert-danger shadow-sm mb-4">
+                        <div class="alert alert-danger shadow-sm mb-4 no-imprimir">
                             <i class="bi bi-exclamation-triangle-fill me-2"></i> No se encontró ningún alumno con esa matrícula o aún no tiene materias asignadas.
                         </div>
                     <?php endif; ?>
@@ -305,10 +396,10 @@ try {
                                                                     <?php echo htmlspecialchars($clase_encontrada['nombre_materia']); ?>
                                                                 </strong>
                                                                 <?php if ($rol_actual == 'Alumno' || $rol_actual == 'Administrador'): ?>
-                                                                    <span class="mb-1"><i class="bi bi-person-video3"></i> <?php echo htmlspecialchars($clase_encontrada['profe_nombre']); ?></span>
+                                                                    <span class="mb-1"><i class="bi bi-person-video3 no-imprimir"></i> <?php echo htmlspecialchars($clase_encontrada['profe_nombre']); ?></span>
                                                                 <?php endif; ?>
                                                                 <div>
-                                                                    <span class="badge bg-light text-dark shadow-sm">Grupo <?php echo htmlspecialchars($clase_encontrada['nombre_grupo']); ?></span>
+                                                                    <span class="badge bg-light text-dark shadow-sm mt-1">Grupo <?php echo htmlspecialchars($clase_encontrada['nombre_grupo']); ?></span>
                                                                 </div>
                                                             </div>
                                                         <?php else: ?>
@@ -322,7 +413,7 @@ try {
                                     </tbody>
                                 </table>
                             <?php else: ?>
-                                <div class="text-center py-5 text-muted border rounded bg-light m-3">
+                                <div class="text-center py-5 text-muted border rounded bg-light m-3 no-imprimir">
                                     <i class="bi bi-calendar-x fs-1 d-block mb-3"></i>
                                     <?php if (isset($_GET['matricula']) && !empty($_GET['matricula'])): ?>
                                         Este alumno no tiene clases registradas.
