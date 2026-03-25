@@ -13,13 +13,31 @@ $db = $conexion->getConnection();
 $rol_actual = $_SESSION['rol'];
 $id_usuario_actual = $_SESSION['id_usuario'];
 
-$cursos_activos = [];
+// ==============================================================
+// 1. OBTENER FOTO DE PERFIL DEL USUARIO
+// ==============================================================
+$tiene_foto = false;
+$foto_header = "";
+
+try {
+    $stmt_foto = $db->prepare("SELECT foto_perfil FROM usuarios WHERE id_usuario = :id");
+    $stmt_foto->execute([':id' => $id_usuario_actual]);
+    $foto_db = $stmt_foto->fetch(PDO::FETCH_ASSOC);
+    
+    if ($foto_db && !empty($foto_db['foto_perfil']) && $foto_db['foto_perfil'] != 'default.png') {
+        $tiene_foto = true;
+        $foto_header = '../assets/perfiles/' . $foto_db['foto_perfil'];
+    }
+} catch (Exception $e) {
+    // Si la columna foto_perfil aún no existe o hay error, no pasa nada, se queda con el ícono
+}
 
 // ==============================================================
-// 1. OBTENER SOLO CURSOS ACTIVOS PARA EL DASHBOARD
+// 2. OBTENER SOLO CURSOS ACTIVOS PARA EL DASHBOARD
 // ==============================================================
+$cursos_activos = [];
+
 if ($rol_actual == 'Profesor') {
-    // AGREGAMOS EL GROUP BY AL FINAL DE ESTA CONSULTA
     $query = "SELECT h.id_horario, m.nombre_materia, m.clave_materia, g.nombre_grupo, 
                      IFNULL((SELECT MAX(finalizado) FROM carga_academica WHERE id_horario = h.id_horario), 0) as curso_finalizado
               FROM horarios h 
@@ -38,7 +56,6 @@ if ($rol_actual == 'Profesor') {
     }
 
 } elseif ($rol_actual == 'Alumno') {
-    // AGREGAMOS EL GROUP BY AL FINAL DE ESTA CONSULTA
     $query = "SELECT m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, ca.finalizado
               FROM carga_academica ca 
               JOIN horarios h ON ca.id_horario = h.id_horario 
@@ -75,6 +92,15 @@ if ($rol_actual == 'Profesor') {
         .borde-vino { border-left: 5px solid var(--rojo-vino) !important; }
         .icono-gigante { font-size: 3.5rem; color: var(--rojo-vino); margin-bottom: 10px; }
         .main_contenido { margin-left: 0 !important; width: 100% !important; }
+        
+        /* Estilo para la foto redonda de la barra superior */
+        .foto-mini-header {
+            width: 35px;
+            height: 35px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--rojo-vino);
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -97,7 +123,13 @@ if ($rol_actual == 'Profesor') {
                 <div class="dropdown">
                     <div class="perfil dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
                         <span class="fw-semibold text-secondary me-2 d-none d-sm-inline">Mi Cuenta</span>
-                        <i class="bi bi-person-circle fs-3 text-secondary"></i>
+                        
+                        <?php if ($tiene_foto): ?>
+                            <img src="<?php echo $foto_header; ?>" alt="Foto" class="foto-mini-header shadow-sm">
+                        <?php else: ?>
+                            <i class="bi bi-person-circle fs-3 text-secondary"></i>
+                        <?php endif; ?>
+                        
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2">
                         <li><a class="dropdown-item fw-bold text-dark" href="perfil.php"><i class="bi bi-person-lines-fill me-2"></i> Mi Perfil</a></li>
@@ -168,25 +200,45 @@ if ($rol_actual == 'Profesor') {
                 <?php elseif ($rol_actual == 'Alumno'): ?>
                     
                     <div class="row g-4 justify-content-center mb-5">
-                        <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
                             <a href="horarios.php" class="text-decoration-none">
-                                <div class="card shadow-sm border-0 text-center p-3 tarjeta-hover" style="border-top: 4px solid var(--rojo-vino);">
-                                    <i class="bi bi-calendar3 fs-1" style="color: var(--rojo-vino);"></i>
-                                    <h6 class="fw-bold text-dark mt-2 mb-0">Mi Horario</h6>
+                                <div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino">
+                                    <i class="bi bi-calendar3 icono-gigante"></i>
+                                    <h5 class="fw-bold text-dark mt-2 mb-0">Mi Horario</h5>
                                 </div>
                             </a>
                         </div>
-                        <div class="col-12 col-sm-6 col-lg-3">
-                            <a href="calificaciones.php" class="text-decoration-none"><div class="card shadow-sm border-0 text-center p-3 tarjeta-hover" style="border-top: 4px solid var(--rojo-vino);"><i class="bi bi-journal-text fs-1" style="color: var(--rojo-vino);"></i><h6 class="fw-bold text-dark mt-2 mb-0">Mi Boleta</h6></div></a>
+                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                            <a href="calificaciones.php" class="text-decoration-none">
+                                <div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino">
+                                    <i class="bi bi-journal-text icono-gigante"></i>
+                                    <h5 class="fw-bold text-dark mt-2 mb-0">Mi Boleta</h5>
+                                </div>
+                            </a>
                         </div>
-                        <div class="col-12 col-sm-6 col-lg-3">
-                            <a href="kardex.php" class="text-decoration-none"><div class="card shadow-sm border-0 text-center p-3 tarjeta-hover" style="border-top: 4px solid #6c757d;"><i class="bi bi-archive-fill fs-1 text-secondary"></i><h6 class="fw-bold text-dark mt-2 mb-0">Mi Kardex</h6></div></a>
+                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                            <a href="kardex.php" class="text-decoration-none">
+                                <div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino">
+                                    <i class="bi bi-archive-fill icono-gigante"></i>
+                                    <h5 class="fw-bold text-dark mt-2 mb-0">Mi Kardex</h5>
+                                </div>
+                            </a>
                         </div>
-                        <div class="col-12 col-sm-6 col-lg-3">
-                            <a href="finanzas.php" class="text-decoration-none"><div class="card shadow-sm border-0 text-center p-3 tarjeta-hover" style="border-top: 4px solid var(--rojo-vino);"><i class="bi bi-cash-coin fs-1" style="color: var(--rojo-vino);"></i><h6 class="fw-bold text-dark mt-2 mb-0">Finanzas</h6></div></a>
+                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                            <a href="finanzas.php" class="text-decoration-none">
+                                <div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino">
+                                    <i class="bi bi-cash-coin icono-gigante"></i>
+                                    <h5 class="fw-bold text-dark mt-2 mb-0">Finanzas</h5>
+                                </div>
+                            </a>
                         </div>
-                        <div class="col-12 col-sm-6 col-lg-3">
-                            <a href="servicio_social.php" class="text-decoration-none"><div class="card shadow-sm border-0 text-center p-3 tarjeta-hover" style="border-top: 4px solid var(--rojo-vino);"><i class="bi bi-building-check fs-1" style="color: var(--rojo-vino);"></i><h6 class="fw-bold text-dark mt-2 mb-0">Servicio Social</h6></div></a>
+                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                            <a href="servicio_social.php" class="text-decoration-none">
+                                <div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino">
+                                    <i class="bi bi-building-check icono-gigante"></i>
+                                    <h5 class="fw-bold text-dark mt-2 mb-0">Servicio Social</h5>
+                                </div>
+                            </a>
                         </div>
                     </div>
 
