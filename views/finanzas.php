@@ -196,9 +196,12 @@ $res_carreras = $conexion->query($sql_carreras);
                                         <label class="form-label fw-semibold">Monto ($):</label>
                                         <input type="number" step="0.01" name="monto" class="form-control" required placeholder="Ej: 2500.00">
                                     </div>
-                                    <div class="col-12 col-md-3">
-                                        <label class="form-label fw-semibold">Fecha Límite:</label>
-                                        <input type="date" name="fecha_limite" class="form-control" required>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold">Fecha Límite:</label>
+                                        <input type="date" name="fecha_limite" class="form-control" 
+                                            min="<?php echo date('Y'); ?>-01-01" 
+                                            onchange="if(this.value && this.value < '<?php echo date('Y'); ?>-01-01') { alert('Solo se permiten fechas de <?php echo date('Y'); ?> en adelante.'); this.value=''; }" 
+                                            required>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-end mt-4">
@@ -413,8 +416,11 @@ $res_carreras = $conexion->query($sql_carreras);
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Fecha Límite</label>
-                                <input type="date" name="fecha_limite_edit" id="edit_fecha" class="form-control" required>
+                                <label class="form-label fw-bold">Fecha Límite</label>
+                                <input type="date" name="fecha_limite_edit" id="edit_fecha" class="form-control" 
+                                    min="<?php echo date('Y'); ?>-01-01" 
+                                    onchange="if(this.value && this.value < '<?php echo date('Y'); ?>-01-01') { alert('Solo se permiten fechas de <?php echo date('Y'); ?> en adelante.'); this.value=''; }" 
+                                    required>
                             </div>
 
                             <div class="mb-3">

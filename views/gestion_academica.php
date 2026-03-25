@@ -601,13 +601,19 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                             <input type="text" name="nombre_periodo" class="form-control" placeholder="Ej. Enero - Junio 2026" required>
                         </div>
                         <div class="row">
-                            <div class="col-6 mb-3">
+                            <div class="col-md-6">
                                 <label class="form-label fw-bold">Fecha de Inicio</label>
-                                <input type="date" name="fecha_inicio" class="form-control" required>
+                                <input type="date" name="fecha_inicio" class="form-control" 
+                                       min="<?php echo date('Y'); ?>-01-01" 
+                                       onchange="if(this.value && this.value < '<?php echo date('Y'); ?>-01-01') { alert('Solo se permiten fechas de <?php echo date('Y'); ?> en adelante.'); this.value=''; }" 
+                                       required>
                             </div>
-                            <div class="col-6 mb-3">
+                            <div class="col-md-6">
                                 <label class="form-label fw-bold">Fecha de Fin</label>
-                                <input type="date" name="fecha_fin" class="form-control" required>
+                                <input type="date" name="fecha_fin" class="form-control" 
+                                       min="<?php echo date('Y'); ?>-01-01" 
+                                       onchange="if(this.value && this.value < '<?php echo date('Y'); ?>-01-01') { alert('Solo se permiten fechas de <?php echo date('Y'); ?> en adelante.'); this.value=''; }" 
+                                       required>
                             </div>
                         </div>
                     </div>
