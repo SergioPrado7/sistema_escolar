@@ -2,7 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$host = "nue.domcloud.co"; 
+$host = "nue.domcloud.co";
 $user = "sitiosergio";
 $pass = "j_6)55P_zdHiP8jY2W";
 $db   = "sitiosergio_sistema_escolar";
@@ -12,11 +12,9 @@ $mensaje = "";
 $tipo_alerta = "";
 $mostrar_formulario = false;
 
-// 1. Verificar si el token viene en la URL
 if (isset($_GET['token'])) {
     $token = mysqli_real_escape_string($conn, $_GET['token']);
-    
-    // Buscar el usuario con ese token y que no haya expirado
+
     $sql = "SELECT * FROM usuarios WHERE reset_token = '$token' AND token_expira > NOW() LIMIT 1";
     $res = $conn->query($sql);
 
@@ -32,21 +30,19 @@ if (isset($_GET['token'])) {
     exit();
 }
 
-// 2. Procesar el cambio de contraseña
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $mostrar_formulario) {
     $nueva_pass = $_POST['password'];
     $confirmar_pass = $_POST['confirm_password'];
 
     if ($nueva_pass === $confirmar_pass) {
         $id_usuario = $usuario['id_usuario'];
-        
-        // Actualizar contraseña y limpiar el token para que no se use dos veces
+
         $update = "UPDATE usuarios SET password = '$nueva_pass', reset_token = NULL, token_expira = NULL WHERE id_usuario = $id_usuario";
-        
+
         if ($conn->query($update)) {
             $mensaje = "¡Contraseña actualizada con éxito! Ya puedes iniciar sesión.";
             $tipo_alerta = "alert-success";
-            $mostrar_formulario = false; // Ocultamos el form tras el éxito
+            $mostrar_formulario = false;
         } else {
             $mensaje = "Error al actualizar la contraseña.";
             $tipo_alerta = "alert-danger";
@@ -60,6 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $mostrar_formulario) {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,10 +64,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $mostrar_formulario) {
     <link rel="icon" type="image/x-icon" href="../assets/iconos/loginIcono.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f4f7f6; height: 100vh; display: flex; align-items: center; }
-        .card { border-radius: 20px; border: none; }
+        body {
+            background-color: #f4f7f6;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .card {
+            border-radius: 20px;
+            border: none;
+        }
     </style>
 </head>
+
 <body class="bg-light d-flex align-items-center justify-content-center vh-100">
 
     <div class="container">
@@ -114,4 +121,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $mostrar_formulario) {
     </div>
 
 </body>
+
 </html>

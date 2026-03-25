@@ -1,4 +1,5 @@
 <?php
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -10,7 +11,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
 
-$host = "nue.domcloud.co"; 
+$host = "nue.domcloud.co";
 $user = "sitiosergio";
 $pass = "j_6)55P_zdHiP8jY2W";
 $db   = "sitiosergio_sistema_escolar";
@@ -27,19 +28,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($res && $res->num_rows > 0) {
         $token = bin2hex(random_bytes(20));
         $expira = date("Y-m-d H:i:s", strtotime('+1 hour'));
-        
-        // Actualizar token en la base de datos
+
         $conn->query("UPDATE usuarios SET reset_token='$token', token_expira='$expira' WHERE correo='$correo'");
 
         $mail = new PHPMailer(true);
 
         try {
-            // Configuración del servidor Gmail
             $mail->isSMTP();
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
             $mail->Username   = 'sergio.prado.22isc@tecsanpedro.edu.mx';
-            $mail->Password   = 'dkpf canj dctf ojis'; 
+            $mail->Password   = 'dkpf canj dctf ojis';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = 587;
             $mail->CharSet    = 'UTF-8';
@@ -71,12 +70,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </body>
                 </html>";
 
-            // ENVIAR CORREO (Sin imprimir nada en pantalla)
             $mail->send();
-            
+
             $mensaje = "Correo enviado con éxito. Revisa tu bandeja de entrada.";
             $tipo_alerta = "alert-success";
-
         } catch (Exception $e) {
             $mensaje = "Error al enviar: {$mail->ErrorInfo}";
             $tipo_alerta = "alert-danger";
@@ -90,6 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -97,8 +95,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="icon" type="image/x-icon" href="../assets/iconos/loginIcono.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f4f7f6; height: 100vh; display: flex; align-items: center; }
-        .card { border-radius: 20px; border: none; }
+        body {
+            background-color: #f4f7f6;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .card {
+            border-radius: 20px;
+            border: none;
+        }
     </style>
 </head>
 
@@ -107,7 +114,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-11 col-sm-8 col-md-5">
-                
+
                 <div class="card shadow-lg p-5 border-0">
                     <div class="text-center mb-4">
                         <h2 class="fw-bold" style="color: #800020;">Recuperar Acceso</h2>
@@ -134,7 +141,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="text-center mt-5">
                         <hr class="text-muted">
                         <a href="login.php" class="text-decoration-none text-secondary small">
-                            <strong>< Volver al Login</strong>
+                            <strong>
+                                < Volver al Login</strong>
                         </a>
                     </div>
                 </div>
@@ -144,4 +152,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
 </body>
+
 </html>

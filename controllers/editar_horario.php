@@ -5,10 +5,9 @@ require_once '../config/database.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id_horario = $_POST['id_horario'];
     $id_profesor = $_POST['id_profesor'];
-    
-    // AQUÍ ATRAPAMOS EL DÍA CUANDO SE EDITA
-    $dia_semana = $_POST['dia_semana']; 
-    
+
+    $dia_semana = $_POST['dia_semana'];
+
     $cupo_maximo = $_POST['cupo_maximo'];
     $hora_inicio = $_POST['hora_inicio'];
     $hora_fin = $_POST['hora_fin'];
@@ -17,18 +16,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $db = $conexion->getConnection();
 
     try {
-        // Le agregamos "dia_semana = :dia_semana" a la instrucción UPDATE
         $stmt = $db->prepare("UPDATE horarios SET id_profesor = :id_profesor, dia_semana = :dia_semana, cupo_maximo = :cupo_maximo, hora_inicio = :hora_inicio, hora_fin = :hora_fin WHERE id_horario = :id");
         $stmt->execute([
             ':id_profesor' => $id_profesor,
-            ':dia_semana' => $dia_semana, // Se manda el cambio a la base de datos
+            ':dia_semana' => $dia_semana,
             ':cupo_maximo' => $cupo_maximo,
             ':hora_inicio' => $hora_inicio,
             ':hora_fin' => $hora_fin,
             ':id' => $id_horario
         ]);
-    } catch(PDOException $e) { }
+    } catch (PDOException $e) {
+    }
 }
 header("Location: ../views/gestion_academica.php");
 exit();
-?>

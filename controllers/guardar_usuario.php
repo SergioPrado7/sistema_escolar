@@ -1,10 +1,8 @@
 <?php
-// Llamamos a la conexión
 require_once '../config/database.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
-    // Atrapamos todos los datos (incluyendo id_carrera)
+
     $matricula = $_POST['matricula'];
     $nombre = $_POST['nombre'];
     $apellido = $_POST['apellido'];
@@ -12,8 +10,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $rol = $_POST['rol'];
     $password_plana = $_POST['password'];
     $id_carrera = isset($_POST['id_carrera']) ? $_POST['id_carrera'] : null;
-
-    // Encriptamos la contraseña por seguridad
     $password_hash = password_hash($password_plana, PASSWORD_DEFAULT);
 
     $conexion = new Conexion();
@@ -22,7 +18,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         $db->beginTransaction();
 
-        // 1. Guardar en tabla `usuarios`
         $query_usuario = "INSERT INTO usuarios (matricula, correo, password, rol, estatus) VALUES (:matricula, :correo, :password, :rol, 'Activo')";
         $stmt_usuario = $db->prepare($query_usuario);
         $stmt_usuario->execute([
@@ -33,8 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ]);
 
         $id_nuevo_usuario = $db->lastInsertId();
-
-        // 2. Guardar en tabla `personas`
         $query_persona = "INSERT INTO personas (id_usuario, nombre, apellido_paterno) VALUES (:id_usuario, :nombre, :apellido)";
         $stmt_persona = $db->prepare($query_persona);
         $stmt_persona->execute([
@@ -42,8 +35,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ':nombre' => $nombre,
             ':apellido' => $apellido
         ]);
-
-        // 3. NUEVO: Guardar en `alumnos_detalles` SOLO SI ES ALUMNO
         if ($rol === 'Alumno' && !empty($id_carrera)) {
             $query_detalles = "INSERT INTO alumnos_detalles (id_alumno, id_carrera, semestre_actual, estatus_academico) VALUES (:id_alumno, :id_carrera, 1, 'Regular')";
             $stmt_detalles = $db->prepare($query_detalles);
@@ -57,10 +48,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         header("Location: ../views/gestion_usuarios.php");
         exit();
-
     } catch (PDOException $e) {
         $db->rollBack();
-        
+
         if ($e->getCode() == 23000) {
             header("Location: ../views/gestion_usuarios.php?error=duplicado");
         } else {
@@ -72,4 +62,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: ../views/gestion_usuarios.php");
     exit();
 }
-?>

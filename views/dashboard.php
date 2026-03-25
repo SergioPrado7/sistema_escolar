@@ -1,5 +1,5 @@
-<?php 
-session_start(); 
+<?php
+session_start();
 require_once '../config/database.php';
 
 if (!isset($_SESSION['rol'])) {
@@ -13,9 +13,6 @@ $db = $conexion->getConnection();
 $rol_actual = $_SESSION['rol'];
 $id_usuario_actual = $_SESSION['id_usuario'];
 
-// ==============================================================
-// 1. OBTENER FOTO DE PERFIL DEL USUARIO
-// ==============================================================
 $tiene_foto = false;
 $foto_header = "";
 
@@ -23,18 +20,14 @@ try {
     $stmt_foto = $db->prepare("SELECT foto_perfil FROM usuarios WHERE id_usuario = :id");
     $stmt_foto->execute([':id' => $id_usuario_actual]);
     $foto_db = $stmt_foto->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($foto_db && !empty($foto_db['foto_perfil']) && $foto_db['foto_perfil'] != 'default.png') {
         $tiene_foto = true;
         $foto_header = '../assets/perfiles/' . $foto_db['foto_perfil'];
     }
 } catch (Exception $e) {
-    // Si la columna foto_perfil aún no existe o hay error, no pasa nada
 }
 
-// ==============================================================
-// 2. OBTENER SOLO CURSOS ACTIVOS PARA EL DASHBOARD
-// ==============================================================
 $cursos_activos = [];
 
 if ($rol_actual == 'Profesor') {
@@ -54,7 +47,6 @@ if ($rol_actual == 'Profesor') {
             $cursos_activos[] = $curso;
         }
     }
-
 } elseif ($rol_actual == 'Alumno') {
     $query = "SELECT m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, ca.finalizado
               FROM carga_academica ca 
@@ -78,22 +70,40 @@ if ($rol_actual == 'Profesor') {
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Principal - Tec San Pedro</title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../styles/estilo.css">
     <style>
-        .tarjeta-hover { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
-        .tarjeta-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(128, 0, 32, 0.15) !important; }
-        .borde-vino { border-left: 5px solid var(--rojo-vino) !important; }
-        .icono-gigante { font-size: 3.5rem; color: var(--rojo-vino); margin-bottom: 10px; }
-        .main_contenido { margin-left: 0 !important; width: 100% !important; }
-        
-        /* Estilo para la foto redonda de la barra superior */
+        .tarjeta-hover {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .tarjeta-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(128, 0, 32, 0.15) !important;
+        }
+
+        .borde-vino {
+            border-left: 5px solid var(--rojo-vino) !important;
+        }
+
+        .icono-gigante {
+            font-size: 3.5rem;
+            color: var(--rojo-vino);
+            margin-bottom: 10px;
+        }
+
+        .main_contenido {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+
         .foto-mini-header {
             width: 35px;
             height: 35px;
@@ -103,10 +113,11 @@ if ($rol_actual == 'Profesor') {
         }
     </style>
 </head>
+
 <body class="bg-light">
 
     <div class="container-fluid p-0 d-flex flex-column flex-md-row">
-        
+
         <nav class="navbar navbar-dark d-md-none p-3 w-100" style="background-color: var(--rojo-vino) !important; z-index: 1000;">
             <div class="container-fluid justify-content-center">
                 <span class="text-white fw-bold fs-5">Gestor Tec San Pedro</span>
@@ -131,14 +142,16 @@ if ($rol_actual == 'Profesor') {
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2">
                         <li><a class="dropdown-item fw-bold text-dark" href="perfil.php"><i class="bi bi-person-lines-fill me-2"></i> Mi Perfil</a></li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li><a class="dropdown-item text-danger fw-bold" href="../controllers/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión</a></li>
                     </ul>
                 </div>
             </header>
 
             <section class="p-4">
-                
+
                 <div class="text-center mb-5 mt-2">
                     <img src="../assets/logos/logoPrincipalLogin.png" alt="Logo" style="max-height: 80px; margin-bottom: 15px;">
                     <h2 class="fw-bold" style="color: #333;">Bienvenido(a), <?php echo htmlspecialchars($rol_actual); ?></h2>
@@ -155,15 +168,35 @@ if ($rol_actual == 'Profesor') {
                                 </div>
                             </a>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><a href="gestion_usuarios.php" class="text-decoration-none"><div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-people-fill icono-gigante"></i><h5 class="fw-bold text-dark mt-2 mb-0">Gestión Usuarios</h5></div></a></div>
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><a href="gestion_academica.php" class="text-decoration-none"><div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-journal-bookmark-fill icono-gigante"></i><h5 class="fw-bold text-dark mt-2 mb-0">Gestión Académica</h5></div></a></div>
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><a href="calificaciones.php" class="text-decoration-none"><div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-award-fill icono-gigante"></i><h5 class="fw-bold text-dark mt-2 mb-0">Calificaciones</h5></div></a></div>
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><a href="finanzas.php" class="text-decoration-none"><div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-cash-coin icono-gigante"></i><h5 class="fw-bold text-dark mt-2 mb-0">Finanzas</h5></div></a></div>
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><a href="servicio_social.php" class="text-decoration-none"><div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-building-check icono-gigante"></i><h5 class="fw-bold text-dark mt-2 mb-0">Servicio Social</h5></div></a></div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><a href="gestion_usuarios.php" class="text-decoration-none">
+                                <div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-people-fill icono-gigante"></i>
+                                    <h5 class="fw-bold text-dark mt-2 mb-0">Gestión Usuarios</h5>
+                                </div>
+                            </a></div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><a href="gestion_academica.php" class="text-decoration-none">
+                                <div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-journal-bookmark-fill icono-gigante"></i>
+                                    <h5 class="fw-bold text-dark mt-2 mb-0">Gestión Académica</h5>
+                                </div>
+                            </a></div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><a href="calificaciones.php" class="text-decoration-none">
+                                <div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-award-fill icono-gigante"></i>
+                                    <h5 class="fw-bold text-dark mt-2 mb-0">Calificaciones</h5>
+                                </div>
+                            </a></div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><a href="finanzas.php" class="text-decoration-none">
+                                <div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-cash-coin icono-gigante"></i>
+                                    <h5 class="fw-bold text-dark mt-2 mb-0">Finanzas</h5>
+                                </div>
+                            </a></div>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><a href="servicio_social.php" class="text-decoration-none">
+                                <div class="card shadow-sm border-0 h-100 text-center p-4 tarjeta-hover borde-vino"><i class="bi bi-building-check icono-gigante"></i>
+                                    <h5 class="fw-bold text-dark mt-2 mb-0">Servicio Social</h5>
+                                </div>
+                            </a></div>
                     </div>
 
                 <?php elseif ($rol_actual == 'Profesor'): ?>
-                    
+
                     <div class="row g-4 justify-content-center mb-5">
                         <div class="col-12 col-sm-6 col-md-4">
                             <a href="horarios.php" class="text-decoration-none">
@@ -202,7 +235,7 @@ if ($rol_actual == 'Profesor') {
                                         <div class="card-body text-center d-flex flex-column p-4">
                                             <span class="badge bg-secondary mb-3 fs-6">Grupo <?php echo htmlspecialchars($clase['nombre_grupo']); ?></span>
                                             <h5 class="fw-bold text-dark mb-3"><?php echo htmlspecialchars($clase['nombre_materia']); ?></h5>
-                                            
+
                                             <div class="p-2 rounded bg-light mb-4">
                                                 <small class="text-muted d-block mb-1"><i class="bi bi-tag-fill me-1"></i> Clave:</small>
                                                 <span class="fw-semibold text-dark"><?php echo htmlspecialchars($clase['clave_materia']); ?></span>
@@ -218,12 +251,16 @@ if ($rol_actual == 'Profesor') {
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <div class="col-12"><div class="alert alert-light border text-center py-4 shadow-sm"><h6 class="mb-0 text-muted">No hay grupos activos en este momento.</h6></div></div>
+                            <div class="col-12">
+                                <div class="alert alert-light border text-center py-4 shadow-sm">
+                                    <h6 class="mb-0 text-muted">No hay grupos activos en este momento.</h6>
+                                </div>
+                            </div>
                         <?php endif; ?>
                     </div>
 
                 <?php elseif ($rol_actual == 'Alumno'): ?>
-                    
+
                     <div class="row g-4 justify-content-center mb-5">
                         <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
                             <a href="horarios.php" class="text-decoration-none">
@@ -286,7 +323,11 @@ if ($rol_actual == 'Profesor') {
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <div class="col-12"><div class="alert alert-light border text-center py-4 shadow-sm"><h6 class="mb-0 text-muted">No estás inscrito en ninguna materia actualmente.</h6></div></div>
+                            <div class="col-12">
+                                <div class="alert alert-light border text-center py-4 shadow-sm">
+                                    <h6 class="mb-0 text-muted">No estás inscrito en ninguna materia actualmente.</h6>
+                                </div>
+                            </div>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>
@@ -297,4 +338,5 @@ if ($rol_actual == 'Profesor') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

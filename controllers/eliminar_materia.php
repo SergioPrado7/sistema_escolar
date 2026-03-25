@@ -8,10 +8,8 @@ if (isset($_GET['id'])) {
     try {
         $stmt = $db->prepare("DELETE FROM materias WHERE id_materia = :id");
         $stmt->execute([':id' => $_GET['id']]);
-    } catch(PDOException $e) {
-        // Si marca error es porque la materia ya está asignada a un grupo y no se puede borrar
+    } catch (PDOException $e) {
     }
 }
 header("Location: ../views/gestion_academica.php");
 exit();
-?>

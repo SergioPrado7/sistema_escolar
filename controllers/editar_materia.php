@@ -7,14 +7,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $clave_materia = $_POST['clave_materia'];
     $nombre_materia = $_POST['nombre_materia'];
     $creditos = $_POST['creditos'];
-    $semestre = $_POST['semestre']; // Lo que viene del formulario
+    $semestre = $_POST['semestre'];
     $id_carrera = empty($_POST['id_carrera']) ? NULL : $_POST['id_carrera'];
 
     $conexion = new Conexion();
     $db = $conexion->getConnection();
 
     try {
-        // AQUÍ ESTÁ LA MAGIA: Usamos semestre_sugerido
         $stmt = $db->prepare("UPDATE materias SET clave_materia = :clave, nombre_materia = :nombre, creditos = :creditos, semestre_sugerido = :semestre, id_carrera = :id_carrera WHERE id_materia = :id");
         $stmt->execute([
             ':clave' => $clave_materia,
@@ -26,8 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ]);
         header("Location: ../views/gestion_academica.php");
         exit();
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
         echo "Error al editar la materia: " . $e->getMessage();
     }
 }
-?>

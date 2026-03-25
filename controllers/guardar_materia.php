@@ -13,7 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $db = $conexion->getConnection();
 
     try {
-        // AQUÍ TAMBIÉN: Usamos semestre_sugerido
         $stmt = $db->prepare("INSERT INTO materias (clave_materia, nombre_materia, creditos, semestre_sugerido, id_carrera) VALUES (:clave, :nombre, :creditos, :semestre, :id_carrera)");
         $stmt->execute([
             ':clave' => $clave_materia,
@@ -24,8 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ]);
         header("Location: ../views/gestion_academica.php");
         exit();
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
         echo "Error al guardar la materia: " . $e->getMessage();
     }
 }
-?>

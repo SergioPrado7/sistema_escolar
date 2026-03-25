@@ -8,13 +8,9 @@ if (isset($_GET['id'])) {
     try {
         $stmt = $db->prepare("DELETE FROM periodos WHERE id_periodo = :id");
         $stmt->execute([':id' => $_GET['id']]);
-    } catch(PDOException $e) {
-        // La base de datos nos protege: si el periodo ya tiene grupos reales con alumnos, 
-        // bloqueará la eliminación para no borrar el historial de la escuela.
+    } catch (PDOException $e) {
     }
 }
 
-// Lo regresamos a la pantalla maestra
 header("Location: ../views/gestion_academica.php");
 exit();
-?>

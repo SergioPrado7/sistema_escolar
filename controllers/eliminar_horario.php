@@ -8,10 +8,8 @@ if (isset($_GET['id'])) {
     try {
         $stmt = $db->prepare("DELETE FROM horarios WHERE id_horario = :id");
         $stmt->execute([':id' => $_GET['id']]);
-    } catch(PDOException $e) {
-        // Ignorar si hay error de llave foránea
+    } catch (PDOException $e) {
     }
 }
 header("Location: ../views/gestion_academica.php");
 exit();
-?>

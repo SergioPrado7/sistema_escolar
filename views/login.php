@@ -1,12 +1,14 @@
 <?php
 session_start();
-$host = "nue.domcloud.co"; 
+$host = "nue.domcloud.co";
 $user = "sitiosergio";
 $pass = "j_6)55P_zdHiP8jY2W";
 $db   = "sitiosergio_sistema_escolar";
 
 $conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) { die("Error: " . $conn->connect_error); }
+if ($conn->connect_error) {
+    die("Error: " . $conn->connect_error);
+}
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -17,20 +19,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($res && $res->num_rows > 0) {
         $usuario = $res->fetch_assoc();
         if (password_verify($password_ingresada, $usuario['password']) || $password_ingresada == $usuario['password']) {
-            if ($usuario['estatus'] == 'Inactivo') { $error = "Tu cuenta está desactivada."; } 
-            else {
+            if ($usuario['estatus'] == 'Inactivo') {
+                $error = "Tu cuenta está desactivada.";
+            } else {
                 $_SESSION['id_usuario'] = $usuario['id_usuario'];
                 $_SESSION['rol'] = $usuario['rol'];
                 header("Location: dashboard.php");
                 exit();
             }
-        } else { $error = "La contraseña es incorrecta."; }
-    } else { $error = "La matrícula no existe."; }
+        } else {
+            $error = "La contraseña es incorrecta.";
+        }
+    } else {
+        $error = "La matrícula no existe.";
+    }
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,22 +46,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="icon" type="image/x-icon" href="../assets/iconos/loginIcono.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { 
+        body {
             position: relative;
-            min-height: 100vh; 
+            min-height: 100vh;
             margin: 0;
             background-color: #000;
         }
+
         body::before {
             content: "";
             position: fixed;
-            top: -20px; left: -20px; right: -20px; bottom: -20px; 
-            background-image: url('../assets/logos/fondo_tecnologico.webp'); 
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background-image: url('../assets/logos/fondo_tecnologico.webp');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            filter: blur(12px); 
-            opacity: 0.6; 
+            filter: blur(12px);
+            opacity: 0.6;
             z-index: -1;
         }
 
@@ -63,31 +75,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             z-index: 1;
         }
 
-        .card { 
-            border-radius: 1.5rem; 
+        .card {
+            border-radius: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            
-            background-color: rgba(255, 255, 255, 0.9) !important; 
-            
-            backdrop-filter: blur(15px); 
+
+            background-color: rgba(255, 255, 255, 0.9) !important;
+
+            backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            
+
             transition: transform 0.3s ease;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2) !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
         }
 
         @media (max-width: 576px) {
-            h1 { font-size: 1.8rem !important; }
-            .card { padding: 1.5rem !important; }
+            h1 {
+                font-size: 1.8rem !important;
+            }
+
+            .card {
+                padding: 1.5rem !important;
+            }
         }
     </style>
 </head>
 
 <body class="d-flex align-items-center justify-content-center p-3">
 
-    <div class="login-wrapper"> 
+    <div class="login-wrapper">
         <div class="row justify-content-center align-items-center g-4">
-            
+
             <div class="col-12 col-md-6 col-lg-5 col-xl-5">
                 <div class="card p-4 p-md-5">
                     <div class="text-center mb-4 mb-md-5">
@@ -137,4 +154,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
