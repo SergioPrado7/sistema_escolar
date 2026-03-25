@@ -15,8 +15,8 @@ $carreras = $db->query("SELECT * FROM carreras")->fetchAll(PDO::FETCH_ASSOC);
 $materias = $db->query("SELECT m.*, c.nombre_carrera FROM materias m LEFT JOIN carreras c ON m.id_carrera = c.id_carrera")->fetchAll(PDO::FETCH_ASSOC);
 $profesores = $db->query("SELECT u.id_usuario, p.nombre, p.apellido_paterno FROM usuarios u INNER JOIN personas p ON u.id_usuario = p.id_usuario WHERE u.rol = 'Profesor'")->fetchAll(PDO::FETCH_ASSOC);
 
-$horarios_activos = $db->query("SELECT h.id_horario, h.dia_semana, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, per.nombre_periodo, h.cupo_maximo, h.hora_inicio, h.hora_fin 
-                                FROM horarios h 
+$horarios_activos = $db->query("SELECT h.id_horario, h.id_grupo, h.dia_semana, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, per.nombre_periodo, h.cupo_maximo, h.hora_inicio, h.hora_fin 
+                                FROM horarios h
                                 INNER JOIN materias m ON h.id_materia = m.id_materia 
                                 INNER JOIN grupos g ON h.id_grupo = g.id_grupo 
                                 INNER JOIN usuarios u ON h.id_profesor = u.id_usuario 
@@ -303,10 +303,15 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
                                                                 <form action="../controllers/editar_horario.php" method="POST">
                                                                     <div class="modal-body">
                                                                         <input type="hidden" name="id_horario" value="<?php echo $horario['id_horario']; ?>">
+                                                                        <input type="hidden" name="id_grupo" value="<?php echo $horario['id_grupo']; ?>">
 
                                                                         <div class="mb-3">
                                                                             <label class="fw-bold">Materia (No editable)</label>
                                                                             <input type="text" class="form-control" value="<?php echo htmlspecialchars($horario['nombre_materia']); ?>" disabled>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="fw-bold">Nombre del Grupo</label>
+                                                                            <input type="text" name="nombre_grupo" class="form-control" value="<?php echo htmlspecialchars($horario['nombre_grupo']); ?>" required>
                                                                         </div>
 
                                                                         <div class="mb-3">
