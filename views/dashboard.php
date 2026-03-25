@@ -16,16 +16,18 @@ $id_usuario_actual = $_SESSION['id_usuario'];
 $tiene_foto = false;
 $foto_header = "";
 
-try {
-    $stmt_foto = $db->prepare("SELECT foto_perfil FROM usuarios WHERE id_usuario = :id");
-    $stmt_foto->execute([':id' => $id_usuario_actual]);
-    $foto_db = $stmt_foto->fetch(PDO::FETCH_ASSOC);
+if ($rol_actual !== 'Administrador') {
+    try {
+        $stmt_foto = $db->prepare("SELECT foto_perfil FROM usuarios WHERE id_usuario = :id");
+        $stmt_foto->execute([':id' => $id_usuario_actual]);
+        $foto_db = $stmt_foto->fetch(PDO::FETCH_ASSOC);
 
-    if ($foto_db && !empty($foto_db['foto_perfil']) && $foto_db['foto_perfil'] != 'default.png') {
-        $tiene_foto = true;
-        $foto_header = '../assets/perfiles/' . $foto_db['foto_perfil'];
+        if ($foto_db && !empty($foto_db['foto_perfil']) && $foto_db['foto_perfil'] != 'default.png') {
+            $tiene_foto = true;
+            $foto_header = '../assets/perfiles/' . $foto_db['foto_perfil'];
+        }
+    } catch (Exception $e) {
     }
-} catch (Exception $e) {
 }
 
 $cursos_activos = [];
