@@ -70,7 +70,7 @@ $referencia = "REF" . date("Y") . "-" . $cargo['matricula'] . "-" . str_pad($car
 <body>
 
     <div class="no-print" style="text-align: center; margin-bottom: 20px;">
-        <button onclick="window.print()" style="padding: 10px 20px; background: #800000; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Imprimir / Guardar como PDF</button>
+        <button onclick="window.print()" style="padding: 10px 20px; background: #800000; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Imprimir</button>
     </div>
 
     <div class="ticket-container">

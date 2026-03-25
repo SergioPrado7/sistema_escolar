@@ -77,13 +77,10 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
                          INNER JOIN personas p ON u.id_usuario = p.id_usuario";
                          
     if ($rol_actual != 'Administrador') {
-        // AGREGAMOS EL GROUP BY AQUÍ
-        $query_mis_grupos .= " WHERE h.id_profesor = :id_profesor GROUP BY g.id_grupo";
+        $query_mis_grupos .= " WHERE h.id_profesor = :id_profesor";
         $stmt_grupos = $db->prepare($query_mis_grupos);
         $stmt_grupos->execute([':id_profesor' => $id_usuario_actual]);
     } else {
-        // AGREGAMOS EL GROUP BY AQUÍ TAMBIÉN
-        $query_mis_grupos .= " GROUP BY g.id_grupo";
         $stmt_grupos = $db->prepare($query_mis_grupos);
         $stmt_grupos->execute();
     }
@@ -111,16 +108,14 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
 // ==============================================================
 $mis_calificaciones = [];
 if ($rol_actual == 'Alumno') {
-    // AGREGAMOS EL GROUP BY AL FINAL DE ESTA CONSULTA
     $query_mis_calif = "SELECT ca.*, m.nombre_materia, m.creditos, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno as profe_apellido 
                         FROM carga_academica ca 
                         INNER JOIN horarios h ON ca.id_horario = h.id_horario 
                         INNER JOIN materias m ON h.id_materia = m.id_materia 
                         INNER JOIN usuarios u_profe ON h.id_profesor = u_profe.id_usuario 
-                        INNER JOIN personas p ON u_profe.id_usuario = p.id_usuario 
+                        INNER JOIN personas p ON u.id_usuario = p.id_usuario 
                         INNER JOIN grupos g ON h.id_grupo = g.id_grupo 
-                        WHERE ca.id_alumno = :id_alumno AND ca.finalizado = 0
-                        GROUP BY g.id_grupo";
+                        WHERE ca.id_alumno = :id_alumno AND ca.finalizado = 0";
     $stmt_mis_calif = $db->prepare($query_mis_calif);
     $stmt_mis_calif->execute([':id_alumno' => $id_usuario_actual]);
     $mis_calificaciones = $stmt_mis_calif->fetchAll(PDO::FETCH_ASSOC);
@@ -135,16 +130,17 @@ if ($rol_actual == 'Alumno') {
     <title>Calificaciones - Tec San Pedro</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link rel="icon" type="image/x-icon" href="../assets/iconos/calificacionesIcono.ico">
     <link rel="stylesheet" href="../styles/estilo.css">
     <style>
+        .borde-vino { border-left: 5px solid var(--rojo-vino) !important; }
+        .main_contenido { margin-left: 0 !important; width: 100% !important; }
         .input-unidad { width: 55px; text-align: center; padding: 4px; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; }
         .input-unidad:focus { border-color: var(--rojo-vino); outline: none; box-shadow: 0 0 3px rgba(128, 0, 32, 0.5); }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .final-score { font-size: 1.1em; font-weight: 900; }
     </style>
 </head>
-<body>
+<body class="bg-light">
 
 <div class="container-fluid p-0 d-flex flex-column flex-md-row">
     
@@ -155,8 +151,8 @@ if ($rol_actual == 'Alumno') {
         <div class="menu_links">
             <a href="dashboard.php" class="item">Panel Principal</a>
             <?php if ($_SESSION['rol'] == 'Administrador'): ?><a href="gestion_usuarios.php" class="item">Gestión Usuarios</a><?php endif; ?>
-            <a href="horarios.php" class="item">Horarios</a>
             <a href="calificaciones.php" class="item active">Calificaciones</a>
+            <a href="horarios.php" class="item">Horarios</a>
             <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?><a href="finanzas.php" class="item">Finanzas y Pagos</a><?php endif; ?>
             <?php if ($_SESSION['rol'] == 'Administrador'): ?><a href="gestion_academica.php" class="item">Gestión Académica</a><?php endif; ?>
             <?php if ($_SESSION['rol'] == 'Administrador' || $_SESSION['rol'] == 'Alumno'): ?><a href="servicio_social.php" class="item">Servicio Social</a><?php endif; ?>
@@ -171,47 +167,39 @@ if ($rol_actual == 'Alumno') {
             <div class="collapse navbar-collapse" id="menuMovil">
                 <div class="d-flex flex-column gap-2 mt-3">
                     <a href="dashboard.php" class="item">Panel Principal</a>
-                    <?php if ($_SESSION['rol'] == 'Administrador'): ?>
-                    <a href="gestion_usuarios.php" class="item">Gestión de Usuarios</a>
-                    <?php endif; ?>
-                    <a href="horarios.php" class="item">Horarios</a>
                     <a href="calificaciones.php" class="item active">Calificaciones</a>
-                    <?php if ($_SESSION['rol'] == 'Alumno' || $_SESSION['rol'] == 'Administrador'): ?>
-                    <a href="finanzas.php" class="item">Finanzas y Pagos</a>
-                    <a href="servicio_social.php" class="item">Servicio Social</a>
+                    <?php if ($_SESSION['rol'] == 'Profesor'): ?>
+                    <a href="horarios.php" class="item">Horarios</a>
                     <?php endif; ?>
-                    <?php if ($_SESSION['rol'] == 'Administrador'): ?>
-                    <a href="gestion_usuarios.php" class="item">Gestión Academica</a>
-                    <?php endif; ?>
-                    <?php if ($_SESSION['rol'] == 'Alumno' || $_SESSION['rol'] == 'Profesor'): ?>
-                    <a href="kardex.php" class="item">Kardex</a>
-                    <?php endif; ?>
+                    <?php if ($_SESSION['rol'] == 'Alumno' || $_SESSION['rol'] == 'Profesor'): ?><a href="kardex.php" class="item">Kardex</a><?php endif; ?>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="main_contenido">
+    <main class="main_contenido flex-grow-1 min-vh-100">
         <div class="p-4">
             
             <?php if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador'): ?>
+                
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1 style="color: var(--rojo-vino); font-weight: bold;">Centro de Evaluaciones</h1>
+                    <h1 style="color: var(--rojo-vino); font-weight: bold;"><i class="bi bi-award-fill me-2"></i> Centro de Evaluaciones</h1>
                 </div>
 
                 <?php if (isset($_GET['exito'])): ?>
                     <div class="alert alert-success alert-dismissible fade show shadow-sm"><i class="bi bi-check-circle-fill me-2"></i> <strong>¡Excelente!</strong> Acciones guardadas correctamente. <button class="btn-close" data-bs-dismiss="alert"></button></div>
                 <?php endif; ?>
 
-                <div class="card shadow-sm border-0 mb-4">
+                <div class="card shadow-sm border-0 mb-4 borde-vino">
                     <div class="card-body p-4">
                         <form action="calificaciones.php" method="GET" class="row g-2 align-items-center">
                             <div class="col-12 col-md-8 col-lg-6">
+                                <label class="form-label fw-bold text-muted small">Selecciona el grupo a calificar:</label>
                                 <select name="horario" class="form-select shadow-sm" required onchange="this.form.submit()">
                                     <option value="">-- Elige la materia y grupo --</option>
                                     <?php foreach ($mis_grupos as $grupo): ?>
                                         <?php 
-                                            // FILTRO MAGICO: Si el curso ya fue finalizado, lo saltamos y no lo mostramos en la lista
+                                            // Si el curso ya fue finalizado, lo saltamos y no lo mostramos en la lista
                                             if ($grupo['curso_finalizado'] == 0 || $horario_seleccionado == $grupo['id_horario']): 
                                         ?>
                                             <option value="<?php echo $grupo['id_horario']; ?>" <?php echo ($horario_seleccionado == $grupo['id_horario']) ? 'selected' : ''; ?>>
@@ -230,9 +218,17 @@ if ($rol_actual == 'Alumno') {
 
                 <?php if (!empty($horario_seleccionado)): ?>
                     <div class="card shadow-sm border-0 mb-4">
-                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
-                            <h5 style="color: var(--rojo-vino); font-weight: bold;"><i class="bi bi-list-ol me-2"></i>Listado de Alumnos</h5>
-                            <span class="badge bg-primary px-3 py-2">CURSO EN PROGRESO</span>
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                            <h5 class="mb-3 mb-md-0" style="color: var(--rojo-vino); font-weight: bold;">
+                                <i class="bi bi-list-ol me-2"></i>Listado de Alumnos
+                            </h5>
+                            
+                            <div class="d-flex align-items-center gap-3">
+                                <a href="lista_asistencia.php?horario=<?php echo $horario_seleccionado; ?>" target="_blank" class="btn btn-sm btn-outline-secondary fw-bold shadow-sm">
+                                    <i class="bi bi-card-checklist me-1"></i> Imprimir Lista de Asistencia
+                                </a>
+                                <span class="badge bg-primary px-3 py-2">CURSO EN PROGRESO</span>
+                            </div>
                         </div>
                         <div class="card-body">
                             
@@ -272,12 +268,19 @@ if ($rol_actual == 'Alumno') {
                                     </div>
                                     
                                     <div class="d-flex justify-content-between mt-4 border-top pt-3">
-                                        <button type="submit" name="guardar_calificaciones" class="btn btn-outline-primary px-4 fw-bold"><i class="bi bi-floppy-fill me-2"></i> Guardar Avance</button>
-                                        <button type="submit" name="finalizar_curso" class="btn text-white px-4 fw-bold shadow-sm" style="background-color: var(--rojo-vino);" onclick="return confirm('¿Seguro que deseas finalizar el curso? Ya no podrás editar las calificaciones.');"><i class="bi bi-lock-fill me-2"></i> Finalizar Curso e Imprimir</button>
+                                        <button type="submit" name="guardar_calificaciones" class="btn btn-outline-primary px-4 fw-bold shadow-sm">
+                                            <i class="bi bi-floppy-fill me-2"></i> Guardar Avance
+                                        </button>
+                                        <button type="submit" name="finalizar_curso" class="btn text-white px-4 fw-bold shadow-sm" style="background-color: var(--rojo-vino);" onclick="return confirm('¿Seguro que deseas finalizar el curso? Ya no podrás editar las calificaciones.');">
+                                            <i class="bi bi-lock-fill me-2"></i> Finalizar Curso e Imprimir
+                                        </button>
                                     </div>
                                 </form>
                             <?php else: ?>
-                                <div class="text-center py-5 text-muted"><h5>No hay alumnos inscritos.</h5></div>
+                                <div class="text-center py-5 text-muted bg-light rounded m-3">
+                                    <i class="bi bi-people-fill fs-1 d-block mb-3"></i>
+                                    <h5>No hay alumnos inscritos en este grupo.</h5>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -286,10 +289,10 @@ if ($rol_actual == 'Alumno') {
 
             <?php if ($rol_actual == 'Alumno'): ?>
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
-                    <h1 class="mb-3 mb-md-0" style="color: var(--rojo-vino); font-weight: bold;">Mis Calificaciones</h1>
+                    <h1 class="mb-3 mb-md-0" style="color: var(--rojo-vino); font-weight: bold;"><i class="bi bi-journal-text me-2"></i> Mi Boleta en Curso</h1>
                 </div>
 
-                <div class="card shadow-sm border-0 mb-4">
+                <div class="card shadow-sm border-0 mb-4 borde-vino">
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
@@ -337,7 +340,7 @@ if ($rol_actual == 'Alumno') {
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php else: ?>
-                                        <tr><td colspan="9" class="text-center py-5 text-muted">Aún no tienes materias asignadas en tu semestre actual.</td></tr>
+                                        <tr><td colspan="9" class="text-center py-5 text-muted bg-light">Aún no tienes materias asignadas en tu semestre actual.</td></tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>

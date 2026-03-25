@@ -96,7 +96,7 @@ $fecha_hoy = strftime("%d de %B de %Y");
 
     <div class="no-print" style="text-align: center; margin: 20px 0;">
         <button onclick="window.print()" style="padding: 10px 20px; background: #800020; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-family: sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-            🖨️ Imprimir / Guardar como PDF
+            Imprimir
         </button>
     </div>
 

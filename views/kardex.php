@@ -93,6 +93,9 @@ if ($rol_actual == 'Profesor') {
                 <a href="kardex.php" class="item active">Kardex</a>
             <?php endif; ?>
             <?php if ($rol_actual == 'Profesor'): ?>
+                <a href="horarios.php" class="item active">Horarios</a>
+            <?php endif; ?>
+            <?php if ($rol_actual == 'Profesor'): ?>
                 <a href="kardex.php" class="item active">Kardex</a>
             <?php endif; ?>
         </div>
@@ -113,6 +116,9 @@ if ($rol_actual == 'Profesor') {
                         <a href="servicio_social.php" class="item">Servicio Social</a>
                         <a href="kardex.php" class="item active">Kardex</a>
                     <?php endif; ?>
+                    <?php if ($rol_actual == 'Profesor'): ?>
+                    <a href="horarios.php" class="item active">Horarios</a>
+                     <?php endif; ?>
                     <?php if ($rol_actual == 'Profesor'): ?>
                         <a href="kardex.php" class="item active">Kardex</a>
                     <?php endif; ?>
