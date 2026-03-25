@@ -7,19 +7,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id_materia = $_POST['id_materia'];
     $id_profesor = $_POST['id_profesor'];
     $nombre_grupo = trim(strtoupper($_POST['nombre_grupo'])); 
-    
-    // AQUÍ ATRAPAMOS EL DÍA NUEVO
-    $dia_semana = $_POST['dia_semana']; 
-    
-    $hora_inicio = $_POST['hora_inicio'];
-    $hora_fin = $_POST['hora_fin'];
     $cupo_maximo = $_POST['cupo_maximo'];
+    
+    // AHORA ESTOS SON ARRAYS (LISTAS)
+    $dias = $_POST['dia_semana']; 
+    $inicios = $_POST['hora_inicio'];
+    $fines = $_POST['hora_fin'];
 
     $conexion = new Conexion();
     $db = $conexion->getConnection();
 
     try {
-        // 1. Guardamos el Grupo (El grupo no lleva día, solo las horas, eso está bien)
+        $db->beginTransaction();
+
+        // 1. Guardamos o buscamos el Grupo Principal
         $stmt_grupo = $db->prepare("SELECT id_grupo FROM grupos WHERE nombre_grupo = :nombre AND id_materia = :id_materia AND id_profesor = :id_profesor AND id_periodo = :id_periodo");
         $stmt_grupo->execute([
             ':nombre' => $nombre_grupo,
@@ -42,28 +43,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $id_grupo = $db->lastInsertId(); 
         }
 
-        // 2. Guardamos el Horario (¡AHORA SÍ CON EL DÍA DE LA SEMANA INCLUIDO!)
+        // 2. Guardamos TODOS los horarios que el administrador agregó en el ciclo
         $query_horario = "INSERT INTO horarios (id_materia, id_profesor, id_grupo, id_periodo, cupo_maximo, dia_semana, hora_inicio, hora_fin) 
                           VALUES (:id_materia, :id_profesor, :id_grupo, :id_periodo, :cupo_maximo, :dia_semana, :hora_inicio, :hora_fin)";
         $stmt_horario = $db->prepare($query_horario);
         
-        $stmt_horario->execute([
-            ':id_materia' => $id_materia,
-            ':id_profesor' => $id_profesor,
-            ':id_grupo' => $id_grupo,
-            ':id_periodo' => $id_periodo,
-            ':cupo_maximo' => $cupo_maximo,
-            ':dia_semana' => $dia_semana, // Se manda a la base de datos
-            ':hora_inicio' => $hora_inicio,
-            ':hora_fin' => $hora_fin
-        ]);
+        for ($i = 0; $i < count($dias); $i++) {
+            $stmt_horario->execute([
+                ':id_materia' => $id_materia,
+                ':id_profesor' => $id_profesor,
+                ':id_grupo' => $id_grupo,
+                ':id_periodo' => $id_periodo,
+                ':cupo_maximo' => $cupo_maximo,
+                ':dia_semana' => $dias[$i],
+                ':hora_inicio' => $inicios[$i],
+                ':hora_fin' => $fines[$i]
+            ]);
+        }
 
-        // Regresamos a la pantalla maestra
+        $db->commit();
         header("Location: ../views/gestion_academica.php");
         exit();
 
     } catch(PDOException $e) {
-        echo "Error al aperturar el grupo: " . $e->getMessage();
+        $db->rollBack();
+        echo "Error al aperturar el grupo múltiple: " . $e->getMessage();
     }
 }
 ?>

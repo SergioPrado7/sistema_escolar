@@ -606,77 +606,94 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
 </div>
 
 <div class="modal fade" id="modalNuevoGrupo" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-lg"> <div class="modal-content">
             <div class="modal-header" style="background-color: var(--rojo-vino); color: white;">
                 <h5 class="modal-title">Aperturar Nuevo Grupo</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="../controllers/guardar_grupo.php" method="POST">
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Periodo Escolar</label>
-                        <select name="id_periodo" class="form-select" required>
-                            <option value="">-- Selecciona el Periodo --</option>
-                            <?php foreach($periodos as $per): ?>
-                                <option value="<?php echo $per['id_periodo']; ?>"><?php echo htmlspecialchars($per['nombre_periodo']); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Materia</label>
-                        <select name="id_materia" class="form-select" required>
-                            <option value="">-- Selecciona la Materia --</option>
-                            <?php foreach($materias as $mat): ?>
-                                <option value="<?php echo $mat['id_materia']; ?>"><?php echo htmlspecialchars($mat['nombre_materia']); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Profesor Asignado</label>
-                        <select name="id_profesor" class="form-select" required>
-                            <option value="">-- Selecciona un Profesor --</option>
-                            <?php foreach($profesores as $profe): ?>
-                                <option value="<?php echo $profe['id_usuario']; ?>"><?php echo htmlspecialchars($profe['nombre'] . ' ' . $profe['apellido_paterno']); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
                     <div class="row g-3 mb-3">
-                        <div class="col-6">
-                            <label class="form-label fw-bold">Grupo</label>
-                            <input type="text" name="nombre_grupo" class="form-control" placeholder="Ej. 8A" required>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Periodo Escolar</label>
+                            <select name="id_periodo" class="form-select" required>
+                                <option value="">-- Selecciona el Periodo --</option>
+                                <?php foreach($periodos as $per): ?>
+                                    <option value="<?php echo $per['id_periodo']; ?>"><?php echo htmlspecialchars($per['nombre_periodo']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold">Día de Clase</label>
-                            <select name="dia_semana" class="form-select" required>
-                                <option value="">Selecciona...</option>
-                                <option value="Lunes">Lunes</option>
-                                <option value="Martes">Martes</option>
-                                <option value="Miércoles">Miércoles</option>
-                                <option value="Jueves">Jueves</option>
-                                <option value="Viernes">Viernes</option>
-                                <option value="Sábado">Sábado</option>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Materia</label>
+                            <select name="id_materia" class="form-select" required>
+                                <option value="">-- Selecciona la Materia --</option>
+                                <?php foreach($materias as $mat): ?>
+                                    <option value="<?php echo $mat['id_materia']; ?>"><?php echo htmlspecialchars($mat['nombre_materia']); ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
+                    
                     <div class="row g-3 mb-3">
-                        <div class="col-6">
-                            <label class="form-label fw-bold">Hora Inicio</label>
-                            <input type="time" name="hora_inicio" class="form-control" required>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Profesor Asignado</label>
+                            <select name="id_profesor" class="form-select" required>
+                                <option value="">-- Selecciona un Profesor --</option>
+                                <?php foreach($profesores as $profe): ?>
+                                    <option value="<?php echo $profe['id_usuario']; ?>"><?php echo htmlspecialchars($profe['nombre'] . ' ' . $profe['apellido_paterno']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold">Hora Fin</label>
-                            <input type="time" name="hora_fin" class="form-control" required>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Nombre del Grupo</label>
+                            <input type="text" name="nombre_grupo" class="form-control" placeholder="Ej. 8A" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Cupo</label>
+                            <input type="number" name="cupo_maximo" class="form-control" value="30" required>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Cupo Máximo</label>
-                        <input type="number" name="cupo_maximo" class="form-control" value="30" required>
+
+                    <hr class="opacity-25 my-4">
+
+                    <div id="contenedor-horarios">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <label class="form-label fw-bold mb-0" style="color: var(--rojo-vino);">Días y Horarios de Clase</label>
+                            <button type="button" class="btn btn-sm btn-success fw-bold btn-add-horario shadow-sm">
+                                <i class="bi bi-plus-lg me-1"></i> Agregar Día
+                            </button>
+                        </div>
+                        
+                        <div class="row g-2 mb-2 fila-horario align-items-end p-2 bg-light rounded border">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted mb-1">Día</label>
+                                <select name="dia_semana[]" class="form-select form-select-sm" required>
+                                    <option value="">Selecciona...</option>
+                                    <option value="Lunes">Lunes</option>
+                                    <option value="Martes">Martes</option>
+                                    <option value="Miércoles">Miércoles</option>
+                                    <option value="Jueves">Jueves</option>
+                                    <option value="Viernes">Viernes</option>
+                                    <option value="Sábado">Sábado</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold text-muted mb-1">Hora Inicio</label>
+                                <input type="time" name="hora_inicio[]" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold text-muted mb-1">Hora Fin</label>
+                                <input type="time" name="hora_fin[]" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <span class="badge bg-secondary w-100 py-2">Día 1</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn text-white" style="background-color: var(--rojo-vino);">Abrir Grupo</button>
+                    </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn text-white fw-bold shadow-sm" style="background-color: var(--rojo-vino);"><i class="bi bi-floppy-fill me-2"></i>Guardar Todo</button>
                 </div>
             </form>
         </div>
@@ -687,22 +704,61 @@ if (isset($_GET['matricula']) && !empty($_GET['matricula'])) {
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // 1. Ver si el navegador guardó en su memoria la última pestaña que visitaste
+        // Lógica de las pestañas
         let pestañaGuardada = localStorage.getItem('pestañaActivaAdmin');
         if (pestañaGuardada) {
             let botonPestaña = document.querySelector('button[data-bs-target="' + pestañaGuardada + '"]');
             if (botonPestaña) {
                 let tab = new bootstrap.Tab(botonPestaña);
-                tab.show(); // Forzamos a que se abra esa
+                tab.show();
             }
         }
 
-        // 2. Cada vez que le piques a una pestaña nueva, la guardamos en la memoria
         let botonesTab = document.querySelectorAll('button[data-bs-toggle="tab"]');
         botonesTab.forEach(function(boton) {
             boton.addEventListener('shown.bs.tab', function(e) {
                 localStorage.setItem('pestañaActivaAdmin', e.target.getAttribute('data-bs-target'));
             });
+        });
+
+        // Lógica para agregar/quitar horarios dinámicamente
+        let contadorDias = 2;
+        document.addEventListener('click', function(e) {
+            // Agregar fila
+            if (e.target && (e.target.matches('.btn-add-horario') || e.target.closest('.btn-add-horario'))) {
+                const contenedor = document.getElementById('contenedor-horarios');
+                const nuevaFila = document.createElement('div');
+                nuevaFila.className = 'row g-2 mb-2 fila-horario align-items-end p-2 bg-white rounded border shadow-sm';
+                nuevaFila.innerHTML = `
+                    <div class="col-md-4">
+                        <select name="dia_semana[]" class="form-select form-select-sm" required>
+                            <option value="">Selecciona...</option>
+                            <option value="Lunes">Lunes</option>
+                            <option value="Martes">Martes</option>
+                            <option value="Miércoles">Miércoles</option>
+                            <option value="Jueves">Jueves</option>
+                            <option value="Viernes">Viernes</option>
+                            <option value="Sábado">Sábado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="time" name="hora_inicio[]" class="form-control form-control-sm" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="time" name="hora_fin[]" class="form-control form-control-sm" required>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-sm btn-danger w-100 btn-remove-horario fw-bold" title="Quitar este día"><i class="bi bi-trash-fill me-1"></i> Quitar</button>
+                    </div>
+                `;
+                contenedor.appendChild(nuevaFila);
+                contadorDias++;
+            }
+            
+            // Quitar fila
+            if (e.target && (e.target.matches('.btn-remove-horario') || e.target.closest('.btn-remove-horario'))) {
+                e.target.closest('.fila-horario').remove();
+            }
         });
     });
 </script>
