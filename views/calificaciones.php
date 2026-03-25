@@ -14,7 +14,8 @@ $rol_actual = $_SESSION['rol'];
 
 if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
 
-    if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['guardar_calificaciones']) || isset($_POST['finalizar_curso']))) {
+ 
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['guardar_calificaciones']) || isset($_POST['finalizar_curso']) || isset($_POST['reabrir_curso']))) {
         $id_horario_actual = $_POST['id_horario_seleccionado'];
         $es_finalizar = isset($_POST['finalizar_curso']) ? 1 : 0;
 
@@ -26,12 +27,22 @@ if ($rol_actual == 'Profesor' || $rol_actual == 'Administrador') {
         $u6 = $_POST['u6'] ?? [];
         $ids_cargas = $_POST['id_cargas'] ?? [];
 
-try {
+        try {
             $db->beginTransaction();
 
             $stmt_get_grupo = $db->prepare("SELECT id_grupo FROM horarios WHERE id_horario = ?");
             $stmt_get_grupo->execute([$id_horario_actual]);
             $id_grupo_actual = $stmt_get_grupo->fetchColumn();
+
+            if (isset($_POST['reabrir_curso'])) {
+                $query_reabrir = "UPDATE carga_academica SET finalizado = 0 WHERE id_horario IN (SELECT id_horario FROM horarios WHERE id_grupo = ?)";
+                $stmt_reabrir = $db->prepare($query_reabrir);
+                $stmt_reabrir->execute([$id_grupo_actual]);
+                
+                $db->commit();
+                header("Location: calificaciones.php?horario=" . $id_horario_actual . "&exito=2");
+                exit();
+            }
 
             $query_update = "UPDATE carga_academica 
                              SET u1=?, u2=?, u3=?, u4=?, u5=?, u6=?, calificacion=?, finalizado=IF(finalizado=1 AND ?=0, 1, ?) 
@@ -69,9 +80,10 @@ try {
             exit();
         } catch (PDOException $e) {
             $db->rollBack();
-            die("Error al guardar calificaciones de forma sincronizada: " . $e->getMessage());
+            die("Error al guardar calificaciones: " . $e->getMessage());
         }
     }
+
 
     $query_mis_grupos = "SELECT MAX(h.id_horario) as id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno,
                          IFNULL((SELECT MAX(finalizado) FROM carga_academica WHERE id_horario = MAX(h.id_horario)), 0) as curso_finalizado
@@ -93,20 +105,32 @@ try {
 
     $mis_grupos = $stmt_grupos->fetchAll(PDO::FETCH_ASSOC);
 
+    
     $alumnos_grupo = [];
     $horario_seleccionado = isset($_GET['horario']) ? $_GET['horario'] : '';
 
     if (!empty($horario_seleccionado)) {
-        $query_alumnos = "SELECT ca.*, u.matricula, p.nombre, p.apellido_paterno 
+ 
+        $query_alumnos = "SELECT 
+                            MAX(ca.id_carga) as id_carga, 
+                            MAX(ca.u1) as u1, MAX(ca.u2) as u2, MAX(ca.u3) as u3, 
+                            MAX(ca.u4) as u4, MAX(ca.u5) as u5, MAX(ca.u6) as u6, 
+                            MAX(ca.calificacion) as calificacion,
+                            MAX(ca.finalizado) as finalizado,
+                            u.matricula, p.nombre, p.apellido_paterno 
                           FROM carga_academica ca 
+                          INNER JOIN horarios h ON ca.id_horario = h.id_horario
                           INNER JOIN usuarios u ON ca.id_alumno = u.id_usuario 
                           INNER JOIN personas p ON u.id_usuario = p.id_usuario 
-                          WHERE ca.id_horario = :id_horario ORDER BY p.apellido_paterno ASC";
+                          WHERE h.id_grupo = (SELECT id_grupo FROM horarios WHERE id_horario = :id_horario)
+                          GROUP BY ca.id_alumno, u.matricula, p.nombre, p.apellido_paterno 
+                          ORDER BY p.apellido_paterno ASC";
         $stmt_alumnos = $db->prepare($query_alumnos);
         $stmt_alumnos->execute([':id_horario' => $horario_seleccionado]);
         $alumnos_grupo = $stmt_alumnos->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+
 
 $mis_calificaciones = [];
 if ($rol_actual == 'Alumno') {
@@ -171,6 +195,14 @@ if ($rol_actual == 'Alumno') {
             font-size: 1.1em;
             font-weight: 900;
         }
+        
+        /* Estilo para los inputs bloqueados */
+        input[readonly].input-unidad {
+            background-color: #e9ecef !important;
+            color: #6c757d;
+            border-color: #dee2e6;
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -230,7 +262,11 @@ if ($rol_actual == 'Alumno') {
                     </div>
 
                     <?php if (isset($_GET['exito'])): ?>
-                        <div class="alert alert-success alert-dismissible fade show shadow-sm"><i class="bi bi-check-circle-fill me-2"></i> <strong>¡Excelente!</strong> Acciones guardadas correctamente. <button class="btn-close" data-bs-dismiss="alert"></button></div>
+                        <?php if ($_GET['exito'] == 1): ?>
+                            <div class="alert alert-success alert-dismissible fade show shadow-sm"><i class="bi bi-check-circle-fill me-2"></i> <strong>¡Excelente!</strong> Acciones guardadas correctamente. <button class="btn-close" data-bs-dismiss="alert"></button></div>
+                        <?php elseif ($_GET['exito'] == 2): ?>
+                            <div class="alert alert-warning alert-dismissible fade show shadow-sm"><i class="bi bi-unlock-fill me-2"></i> <strong>¡Curso Reabierto!</strong> Las calificaciones vuelven a ser editables y se han retirado del Kardex temporalmente. <button class="btn-close" data-bs-dismiss="alert"></button></div>
+                        <?php endif; ?>
                     <?php endif; ?>
 
                     <div class="card shadow-sm border-0 mb-4 borde-vino">
@@ -241,16 +277,12 @@ if ($rol_actual == 'Alumno') {
                                     <select name="horario" class="form-select shadow-sm" required onchange="this.form.submit()">
                                         <option value="">-- Elige la materia y grupo --</option>
                                         <?php foreach ($mis_grupos as $grupo): ?>
-                                            <?php
-                                            if ($grupo['curso_finalizado'] == 0 || $horario_seleccionado == $grupo['id_horario']):
-                                            ?>
-                                                <option value="<?php echo $grupo['id_horario']; ?>" <?php echo ($horario_seleccionado == $grupo['id_horario']) ? 'selected' : ''; ?>>
-                                                    <?php
-                                                    $texto_admin = ($rol_actual == 'Administrador') ? " (Prof. " . $grupo['profe_nombre'] . " " . $grupo['apellido_paterno'] . ")" : "";
-                                                    echo htmlspecialchars($grupo['nombre_materia'] . ' - Grupo: ' . $grupo['nombre_grupo'] . $texto_admin);
-                                                    ?>
-                                                </option>
-                                            <?php endif; ?>
+                                            <option value="<?php echo $grupo['id_horario']; ?>" <?php echo ($horario_seleccionado == $grupo['id_horario']) ? 'selected' : ''; ?>>
+                                                <?php
+                                                $texto_admin = ($rol_actual == 'Administrador') ? " (Prof. " . $grupo['profe_nombre'] . " " . $grupo['apellido_paterno'] . ")" : "";
+                                                echo htmlspecialchars($grupo['nombre_materia'] . ' - Grupo: ' . $grupo['nombre_grupo'] . $texto_admin);
+                                                ?>
+                                            </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
@@ -259,6 +291,12 @@ if ($rol_actual == 'Alumno') {
                     </div>
 
                     <?php if (!empty($horario_seleccionado)): ?>
+                        <?php 
+                        $curso_esta_finalizado = 0;
+                        if (count($alumnos_grupo) > 0 && isset($alumnos_grupo[0]['finalizado'])) {
+                            $curso_esta_finalizado = $alumnos_grupo[0]['finalizado'];
+                        }
+                        ?>
                         <div class="card shadow-sm border-0 mb-4">
                             <div class="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
                                 <h5 class="mb-3 mb-md-0" style="color: var(--rojo-vino); font-weight: bold;">
@@ -269,7 +307,11 @@ if ($rol_actual == 'Alumno') {
                                     <a href="lista_asistencia.php?horario=<?php echo $horario_seleccionado; ?>" target="_blank" class="btn btn-sm btn-outline-secondary fw-bold shadow-sm">
                                         <i class="bi bi-card-checklist me-1"></i> Imprimir Lista de Asistencia
                                     </a>
-                                    <span class="badge bg-primary px-3 py-2">CURSO EN PROGRESO</span>
+                                    <?php if ($curso_esta_finalizado == 1): ?>
+                                        <span class="badge bg-success px-3 py-2"><i class="bi bi-lock-fill me-1"></i> CURSO FINALIZADO</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-primary px-3 py-2"><i class="bi bi-pencil-fill me-1"></i> CURSO EN PROGRESO</span>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -298,12 +340,14 @@ if ($rol_actual == 'Alumno') {
                                                             <input type="hidden" name="id_cargas[]" value="<?php echo $alumno['id_carga']; ?>">
                                                             <td class="fw-bold text-muted"><?php echo htmlspecialchars($alumno['matricula']); ?></td>
                                                             <td class="fw-bold"><?php echo htmlspecialchars($alumno['apellido_paterno'] . ' ' . $alumno['nombre']); ?></td>
-                                                            <td class="text-center"><input type="number" step="0.1" name="u1[<?php echo $alumno['id_carga']; ?>]" class="input-unidad" value="<?php echo $alumno['u1']; ?>"></td>
-                                                            <td class="text-center"><input type="number" step="0.1" name="u2[<?php echo $alumno['id_carga']; ?>]" class="input-unidad" value="<?php echo $alumno['u2']; ?>"></td>
-                                                            <td class="text-center"><input type="number" step="0.1" name="u3[<?php echo $alumno['id_carga']; ?>]" class="input-unidad" value="<?php echo $alumno['u3']; ?>"></td>
-                                                            <td class="text-center"><input type="number" step="0.1" name="u4[<?php echo $alumno['id_carga']; ?>]" class="input-unidad" value="<?php echo $alumno['u4']; ?>"></td>
-                                                            <td class="text-center"><input type="number" step="0.1" name="u5[<?php echo $alumno['id_carga']; ?>]" class="input-unidad" value="<?php echo $alumno['u5']; ?>"></td>
-                                                            <td class="text-center"><input type="number" step="0.1" name="u6[<?php echo $alumno['id_carga']; ?>]" class="input-unidad" value="<?php echo $alumno['u6']; ?>"></td>
+                                                            
+                                                            <td class="text-center"><input type="number" step="0.1" name="u1[<?php echo $alumno['id_carga']; ?>]" class="input-unidad" value="<?php echo $alumno['u1']; ?>" <?php echo ($curso_esta_finalizado == 1) ? 'readonly' : ''; ?>></td>
+                                                            <td class="text-center"><input type="number" step="0.1" name="u2[<?php echo $alumno['id_carga']; ?>]" class="input-unidad" value="<?php echo $alumno['u2']; ?>" <?php echo ($curso_esta_finalizado == 1) ? 'readonly' : ''; ?>></td>
+                                                            <td class="text-center"><input type="number" step="0.1" name="u3[<?php echo $alumno['id_carga']; ?>]" class="input-unidad" value="<?php echo $alumno['u3']; ?>" <?php echo ($curso_esta_finalizado == 1) ? 'readonly' : ''; ?>></td>
+                                                            <td class="text-center"><input type="number" step="0.1" name="u4[<?php echo $alumno['id_carga']; ?>]" class="input-unidad" value="<?php echo $alumno['u4']; ?>" <?php echo ($curso_esta_finalizado == 1) ? 'readonly' : ''; ?>></td>
+                                                            <td class="text-center"><input type="number" step="0.1" name="u5[<?php echo $alumno['id_carga']; ?>]" class="input-unidad" value="<?php echo $alumno['u5']; ?>" <?php echo ($curso_esta_finalizado == 1) ? 'readonly' : ''; ?>></td>
+                                                            <td class="text-center"><input type="number" step="0.1" name="u6[<?php echo $alumno['id_carga']; ?>]" class="input-unidad" value="<?php echo $alumno['u6']; ?>" <?php echo ($curso_esta_finalizado == 1) ? 'readonly' : ''; ?>></td>
+                                                            
                                                             <td class="text-center final-score <?php echo ($alumno['calificacion'] !== null && $alumno['calificacion'] < 70) ? 'text-danger' : 'text-success'; ?>">
                                                                 <?php echo $alumno['calificacion'] !== null ? $alumno['calificacion'] : '-'; ?>
                                                             </td>
@@ -314,12 +358,21 @@ if ($rol_actual == 'Alumno') {
                                         </div>
 
                                         <div class="d-flex justify-content-between mt-4 border-top pt-3">
-                                            <button type="submit" name="guardar_calificaciones" class="btn btn-outline-primary px-4 fw-bold shadow-sm">
-                                                <i class="bi bi-floppy-fill me-2"></i> Guardar Avance
-                                            </button>
-                                            <button type="submit" name="finalizar_curso" class="btn text-white px-4 fw-bold shadow-sm" style="background-color: var(--rojo-vino);" onclick="return confirm('¿Seguro que deseas finalizar el curso? Ya no podrás editar las calificaciones.');">
-                                                <i class="bi bi-lock-fill me-2"></i> Finalizar Curso e Imprimir
-                                            </button>
+                                            <?php if ($curso_esta_finalizado == 1): ?>
+                                                <button type="submit" name="reabrir_curso" class="btn btn-warning px-4 fw-bold shadow-sm" onclick="return confirm('¿Seguro que deseas REABRIR el curso? Las calificaciones volverán a ser editables para el profesor.');">
+                                                    <i class="bi bi-unlock-fill me-2"></i> Reabrir Curso para Edición
+                                                </button>
+                                                <button type="button" class="btn text-white px-4 fw-bold shadow-sm" style="background-color: var(--rojo-vino);" onclick="window.print()">
+                                                    <i class="bi bi-printer-fill me-2"></i> Imprimir Acta Final
+                                                </button>
+                                            <?php else: ?>
+                                                <button type="submit" name="guardar_calificaciones" class="btn btn-outline-primary px-4 fw-bold shadow-sm">
+                                                    <i class="bi bi-floppy-fill me-2"></i> Guardar Avance
+                                                </button>
+                                                <button type="submit" name="finalizar_curso" class="btn text-white px-4 fw-bold shadow-sm" style="background-color: var(--rojo-vino);" onclick="return confirm('¿Seguro que deseas finalizar el curso? Las calificaciones se enviarán al Kardex.');">
+                                                    <i class="bi bi-lock-fill me-2"></i> Finalizar Curso e Imprimir
+                                                </button>
+                                            <?php endif; ?>
                                         </div>
                                     </form>
                                 <?php else: ?>
