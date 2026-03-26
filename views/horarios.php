@@ -66,7 +66,6 @@ if ($rol_actual == 'Profesor') {
     }
 }
 
-// Lógica de obtención del horario
 $mi_horario = [];
 $alumno_info = null;
 
@@ -188,9 +187,6 @@ if ($rol_actual == 'Administrador' && isset($alumno_info) && $alumno_info) {
             border: 2px solid var(--rojo-vino);
         }
 
-        /* ============================================================== */
-        /* MAGIA PARA IMPRIMIR HORARIOS SIN QUE SE CORTE                  */
-        /* ============================================================== */
         @media print {
             @page {
                 size: letter landscape;
