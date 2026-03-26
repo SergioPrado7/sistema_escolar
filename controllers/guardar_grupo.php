@@ -41,11 +41,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $id_grupo = $db->lastInsertId();
         }
 
+        $stmt_check_horario = $db->prepare("SELECT id_horario FROM horarios WHERE id_grupo = :id_grupo AND dia_semana = :dia_semana AND hora_inicio = :hora_inicio");
+        
         $query_horario = "INSERT INTO horarios (id_materia, id_profesor, id_grupo, id_periodo, cupo_maximo, dia_semana, hora_inicio, hora_fin) 
                           VALUES (:id_materia, :id_profesor, :id_grupo, :id_periodo, :cupo_maximo, :dia_semana, :hora_inicio, :hora_fin)";
         $stmt_horario = $db->prepare($query_horario);
 
         for ($i = 0; $i < count($dias); $i++) {
+            $stmt_check_horario->execute([
+                ':id_grupo' => $id_grupo,
+                ':dia_semana' => $dias[$i],
+                ':hora_inicio' => $inicios[$i]
+            ]);
+
+            if ($stmt_check_horario->fetch()) {
+                $db->rollBack();
+                echo "<script>alert('Error: Ya existe una clase asignada el día " . $dias[$i] . " a las " . $inicios[$i] . " para este grupo.'); window.location.href='../views/gestion_academica.php';</script>";
+                exit();
+            }
+
             $stmt_horario->execute([
                 ':id_materia' => $id_materia,
                 ':id_profesor' => $id_profesor,
@@ -66,3 +80,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo "Error al aperturar el grupo múltiple: " . $e->getMessage();
     }
 }
+?>
