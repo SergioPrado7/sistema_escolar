@@ -70,6 +70,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 ':hora_inicio' => $inicios[$i],
                 ':hora_fin' => $fines[$i]
             ]);
+
+            $nuevo_id_horario = $db->lastInsertId();
+            
+            $query_sincronizar = "
+                INSERT INTO carga_academica (id_alumno, id_horario)
+                SELECT DISTINCT id_alumno, :nuevo_horario
+                FROM carga_academica
+                WHERE id_horario IN (SELECT id_horario FROM horarios WHERE id_grupo = :id_grupo AND id_horario != :nuevo_horario2)
+            ";
+            $stmt_sync = $db->prepare($query_sincronizar);
+            $stmt_sync->execute([
+                ':nuevo_horario' => $nuevo_id_horario,
+                ':id_grupo' => $id_grupo,
+                ':nuevo_horario2' => $nuevo_id_horario
+            ]);
         }
 
         $db->commit();
