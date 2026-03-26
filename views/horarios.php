@@ -74,18 +74,19 @@ try {
         if (isset($_GET['matricula']) && !empty(trim($_GET['matricula']))) {
             $matricula_buscada = trim($_GET['matricula']);
 
-            $query = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
-                             h.hora_inicio, h.hora_fin, h.dia_semana, per.nombre_periodo, h.cupo_maximo
+            $query = "SELECT DISTINCT h_all.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
+                             h_all.hora_inicio, h_all.hora_fin, h_all.dia_semana, per.nombre_periodo, h_all.cupo_maximo
                       FROM carga_academica ca 
-                      JOIN horarios h ON ca.id_horario = h.id_horario 
-                      JOIN materias m ON h.id_materia = m.id_materia 
-                      JOIN grupos g ON h.id_grupo = g.id_grupo 
+                      JOIN horarios h_inscrito ON ca.id_horario = h_inscrito.id_horario 
+                      JOIN horarios h_all ON h_inscrito.id_materia = h_all.id_materia AND h_inscrito.id_grupo = h_all.id_grupo
+                      JOIN materias m ON h_all.id_materia = m.id_materia 
+                      JOIN grupos g ON h_all.id_grupo = g.id_grupo 
                       JOIN usuarios u_alumno ON ca.id_alumno = u_alumno.id_usuario
-                      JOIN usuarios u_profe ON h.id_profesor = u_profe.id_usuario 
+                      JOIN usuarios u_profe ON h_all.id_profesor = u_profe.id_usuario 
                       JOIN personas p ON u_profe.id_usuario = p.id_usuario 
-                      LEFT JOIN periodos per ON h.id_periodo = per.id_periodo
+                      LEFT JOIN periodos per ON h_all.id_periodo = per.id_periodo
                       WHERE u_alumno.matricula = :matricula AND ca.finalizado = 0
-                      ORDER BY h.hora_inicio ASC";
+                      ORDER BY h_all.hora_inicio ASC";
             $stmt = $db->prepare($query);
             $stmt->execute([':matricula' => $matricula_buscada]);
             $mi_horario = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -94,19 +95,7 @@ try {
             $stmt_alumno->execute([':matricula' => $matricula_buscada]);
             $alumno_info = $stmt_alumno->fetch(PDO::FETCH_ASSOC);
         } else {
-            $query = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
-                             h.hora_inicio, h.hora_fin, h.dia_semana, per.nombre_periodo, h.cupo_maximo
-                      FROM horarios h 
-                      JOIN materias m ON h.id_materia = m.id_materia 
-                      JOIN grupos g ON h.id_grupo = g.id_grupo 
-                      JOIN usuarios u ON h.id_profesor = u.id_usuario 
-                      JOIN personas p ON u.id_usuario = p.id_usuario 
-                      LEFT JOIN periodos per ON h.id_periodo = per.id_periodo
-                      WHERE IFNULL((SELECT MAX(finalizado) FROM carga_academica WHERE id_horario = h.id_horario), 0) = 0
-                      ORDER BY h.hora_inicio ASC";
-            $stmt = $db->prepare($query);
-            $stmt->execute();
-            $mi_horario = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $mi_horario = [];
         }
     } elseif ($rol_actual == 'Profesor') {
         $query = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
@@ -123,17 +112,18 @@ try {
         $stmt->execute([':id_usuario' => $id_usuario_actual]);
         $mi_horario = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif ($rol_actual == 'Alumno') {
-        $query = "SELECT h.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
-                         h.hora_inicio, h.hora_fin, h.dia_semana, per.nombre_periodo, h.cupo_maximo
+        $query = "SELECT DISTINCT h_all.id_horario, m.nombre_materia, g.nombre_grupo, p.nombre as profe_nombre, p.apellido_paterno, 
+                         h_all.hora_inicio, h_all.hora_fin, h_all.dia_semana, per.nombre_periodo, h_all.cupo_maximo
                   FROM carga_academica ca 
-                  JOIN horarios h ON ca.id_horario = h.id_horario 
-                  JOIN materias m ON h.id_materia = m.id_materia 
-                  JOIN grupos g ON h.id_grupo = g.id_grupo 
-                  JOIN usuarios u ON h.id_profesor = u.id_usuario 
-                  JOIN personas p ON u.id_usuario = p.id_usuario 
-                  LEFT JOIN periodos per ON h.id_periodo = per.id_periodo
+                  JOIN horarios h_inscrito ON ca.id_horario = h_inscrito.id_horario 
+                  JOIN horarios h_all ON h_inscrito.id_materia = h_all.id_materia AND h_inscrito.id_grupo = h_all.id_grupo
+                  JOIN materias m ON h_all.id_materia = m.id_materia 
+                  JOIN grupos g ON h_all.id_grupo = g.id_grupo 
+                  JOIN usuarios u_profe ON h_all.id_profesor = u_profe.id_usuario 
+                  JOIN personas p ON u_profe.id_usuario = p.id_usuario 
+                  LEFT JOIN periodos per ON h_all.id_periodo = per.id_periodo
                   WHERE ca.id_alumno = :id_usuario AND ca.finalizado = 0
-                  ORDER BY h.hora_inicio ASC";
+                  ORDER BY h_all.hora_inicio ASC";
         $stmt = $db->prepare($query);
         $stmt->execute([':id_usuario' => $id_usuario_actual]);
         $mi_horario = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -145,8 +135,6 @@ try {
 $nombre_propietario_horario = "";
 if ($rol_actual == 'Administrador' && isset($alumno_info) && $alumno_info) {
     $nombre_propietario_horario = $alumno_info['nombre'] . ' ' . $alumno_info['apellido_paterno'];
-} elseif ($rol_actual == 'Administrador' && (!isset($_GET['matricula']) || empty($_GET['matricula']))) {
-    $nombre_propietario_horario = "Horario General de Grupos";
 } elseif ($rol_actual == 'Profesor' || $rol_actual == 'Alumno') {
     $stmt_mi_nombre = $db->prepare("SELECT p.nombre, p.apellido_paterno FROM usuarios u JOIN personas p ON u.id_usuario = p.id_usuario WHERE u.id_usuario = :id");
     $stmt_mi_nombre->execute([':id' => $id_usuario_actual]);
@@ -523,8 +511,13 @@ if ($rol_actual == 'Administrador' && isset($alumno_info) && $alumno_info) {
                                 </table>
                             <?php else: ?>
                                 <div class="text-center py-5 text-muted border rounded bg-light m-3 no-imprimir d-print-none">
-                                    <i class="bi bi-calendar-x fs-1 d-block mb-3"></i>
-                                    Aún no hay clases registradas en el horario.
+                                    <?php if ($rol_actual == 'Administrador' && empty($_GET['matricula'])): ?>
+                                        <i class="bi bi-search fs-1 d-block mb-3"></i>
+                                        Utiliza el buscador de arriba para consultar el horario de un alumno.
+                                    <?php else: ?>
+                                        <i class="bi bi-calendar-x fs-1 d-block mb-3"></i>
+                                        Aún no hay clases registradas en este horario.
+                                    <?php endif; ?>
                                 </div>
                             <?php endif; ?>
                         </div>
