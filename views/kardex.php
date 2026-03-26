@@ -28,13 +28,14 @@ if ($rol_actual == 'Profesor') {
     $stmt->execute([':id_profesor' => $id_usuario_actual]);
     $historial = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } elseif ($rol_actual == 'Alumno') {
-    $query = "SELECT m.nombre_materia, m.clave_materia, m.creditos, per.nombre_periodo, ca.calificacion
+    // AQUI ESTÁ LA CORRECCIÓN: Agrupamos por id_materia e id_periodo y sacamos la calificación máxima para evitar duplicados por los días de la semana
+    $query = "SELECT m.nombre_materia, m.clave_materia, m.creditos, per.nombre_periodo, MAX(ca.calificacion) as calificacion
               FROM carga_academica ca 
               JOIN horarios h ON ca.id_horario = h.id_horario 
               JOIN materias m ON h.id_materia = m.id_materia 
               LEFT JOIN periodos per ON h.id_periodo = per.id_periodo
               WHERE ca.id_alumno = :id_alumno AND ca.finalizado = 1
-              GROUP BY h.id_grupo, m.nombre_materia, m.clave_materia, m.creditos, per.nombre_periodo, ca.calificacion
+              GROUP BY m.id_materia, m.nombre_materia, m.clave_materia, m.creditos, per.id_periodo, per.nombre_periodo
               ORDER BY per.id_periodo DESC, m.nombre_materia ASC";
     $stmt = $db->prepare($query);
     $stmt->execute([':id_alumno' => $id_usuario_actual]);
